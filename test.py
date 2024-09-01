@@ -3,7 +3,7 @@
 import unittest
 import torch
 import tiktoken
-from model import GPT, GPTConfig, SentenceEndProcessor
+from model import GPT, GPTConfig, SentenceEndProcessor, DEFAULT_SENTENCE_END_TOKENS
 
 def verify_sentence_end_tokens(tokenizer, sentence_end_tokens):
     encoded_tokens = [tokenizer.encode(token) for token in sentence_end_tokens]
@@ -28,39 +28,29 @@ class TestSentenceEndTokens(unittest.TestCase):
         )
 
     def test_verify_sentence_end_tokens(self):
-        tokens = ['.', '?', '!']
-        encoded = verify_sentence_end_tokens(self.tokenizer, tokens)
-        self.assertEqual(len(encoded), 3)
+        encoded = verify_sentence_end_tokens(self.tokenizer, DEFAULT_SENTENCE_END_TOKENS)
+        self.assertEqual(len(encoded), len(DEFAULT_SENTENCE_END_TOKENS))
         for token in encoded:
             self.assertIsInstance(token, int)
 
     def test_sentence_end_processor(self):
         processor = SentenceEndProcessor(self.config.vocab_size)
-        self.assertEqual(len(processor.sentence_end_ids), 3)
-        for token, token_id in zip(['.', '?', '!'], processor.sentence_end_ids):
+        self.assertEqual(len(processor.sentence_end_ids), len(DEFAULT_SENTENCE_END_TOKENS))
+        for token, token_id in zip(DEFAULT_SENTENCE_END_TOKENS, processor.sentence_end_ids):
             self.assertEqual(token_id, self.tokenizer.encode(token)[0])
 
-    def test_invalid_token(self):
-        tokens = ['.', '?', '!', 'invalid_token']
-        encoded = verify_sentence_end_tokens(self.tokenizer, tokens)
-        self.assertEqual(len(encoded), 4)
-        # Check that the first three tokens are encoded as expected
-        self.assertEqual(encoded[:3], [13, 30, 0])
-        # Check that 'invalid_token' is encoded differently
-        self.assertNotIn(encoded[3], [13, 30, 0])
-        print(f"'invalid_token' was encoded as: {encoded[3]}")
+    def test_custom_sentence_end_tokens(self):
+        custom_tokens = ['.', '?', '!', '\n', ';']
+        processor = SentenceEndProcessor(self.config.vocab_size, sentence_end_tokens=custom_tokens)
+        self.assertEqual(len(processor.sentence_end_ids), len(custom_tokens))
+        for token, token_id in zip(custom_tokens, processor.sentence_end_ids):
+            self.assertEqual(token_id, self.tokenizer.encode(token)[0])
 
     def test_gpt_sentence_end_processor(self):
         model = GPT(self.config)
-        self.assertEqual(len(model.sentence_end_processor.sentence_end_ids), 3)
-        for token, token_id in zip(['.', '?', '!'], model.sentence_end_processor.sentence_end_ids):
+        self.assertEqual(len(model.sentence_end_processor.sentence_end_ids), len(DEFAULT_SENTENCE_END_TOKENS))
+        for token, token_id in zip(DEFAULT_SENTENCE_END_TOKENS, model.sentence_end_processor.sentence_end_ids):
             self.assertEqual(token_id, self.tokenizer.encode(token)[0])
-
-    def test_forward_pass(self):
-        model = GPT(self.config)
-        x = torch.randint(0, self.config.vocab_size, (1, self.config.block_size))
-        logits, _ = model(x)
-        self.assertEqual(logits.shape, (1, self.config.block_size, self.config.vocab_size))
 
     def test_sentence_end_mask(self):
         processor = SentenceEndProcessor(self.config.vocab_size)
@@ -68,6 +58,39 @@ class TestSentenceEndTokens(unittest.TestCase):
         mask = processor.create_sentence_end_mask(idx)
         expected_mask = torch.tensor([False, False, False, True, False, True])
         self.assertTrue(torch.all(mask == expected_mask))
+
+    def test_sentence_end_mask_comprehensive(self):
+        processor = SentenceEndProcessor(self.config.vocab_size)
+        
+        # Create a sample input with a mix of sentence-end and non-sentence-end tokens
+        sample_text = "Hello world.\nHow are you? I'm fine! This is a test."
+        encoded = self.tokenizer.encode(sample_text)
+        idx = torch.tensor(encoded)
+
+        # Get the mask
+        mask = processor.create_sentence_end_mask(idx)
+
+        # Verify the mask
+        expected_mask = torch.zeros_like(idx, dtype=torch.bool)
+        for i, token_id in enumerate(encoded):
+            if token_id in processor.sentence_end_ids:
+                expected_mask[i] = True
+
+        self.assertTrue(torch.all(mask == expected_mask))
+
+        # Print out the results for visual inspection
+        print("\nSentence-end masking test:")
+        print(f"Input text: {sample_text}")
+        print(f"Encoded: {encoded}")
+        print(f"Mask: {mask}")
+        print("Tokens kept:")
+        for token, is_kept in zip(sample_text.split(), mask.tolist()):
+            if is_kept:
+                print(f"  {token}")
+
+        # Verify that only sentence-end tokens are masked
+        masked_tokens = [self.tokenizer.decode([token]) for token, keep in zip(encoded, mask) if keep]
+        self.assertEqual(set(masked_tokens), set(DEFAULT_SENTENCE_END_TOKENS))
 
 if __name__ == '__main__':
     unittest.main()

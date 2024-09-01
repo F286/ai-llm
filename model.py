@@ -16,10 +16,13 @@ import torch.nn as nn
 from torch.nn import functional as F
 import tiktoken
 
+# Define the default sentence end tokens
+DEFAULT_SENTENCE_END_TOKENS = ['.', '?', '!', '\n']
+
 class SentenceEndProcessor:
-    def __init__(self, vocab_size):
+    def __init__(self, vocab_size, sentence_end_tokens=DEFAULT_SENTENCE_END_TOKENS):
         self.vocab_size = vocab_size
-        self.sentence_end_tokens = ['.', '?', '!']
+        self.sentence_end_tokens = sentence_end_tokens
         self.tokenizer = tiktoken.get_encoding("gpt2")
         self.sentence_end_ids = self.get_sentence_end_ids()
 
