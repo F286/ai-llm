@@ -115,6 +115,29 @@ class GPTConfig:
     dropout: float = 0.0
     bias: bool = True # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
 
+class SentenceEndProcessor:
+    def __init__(self, vocab_size):
+        self.vocab_size = vocab_size
+        self.sentence_end_tokens = ['.', '?', '!']
+        self.sentence_end_ids = None
+
+    def get_sentence_end_ids(self, device):
+        if self.sentence_end_ids is None or self.sentence_end_ids.device != device:
+            self.sentence_end_ids = torch.tensor([
+                self.vocab_size - 1 if token == '<|endoftext|>' else ord(token)
+                for token in self.sentence_end_tokens
+            ], device=device)
+        return self.sentence_end_ids
+
+    def create_sentence_end_mask(self, idx):
+        return torch.isin(idx, self.get_sentence_end_ids(idx.device))
+
+    def process_middle_layer(self, x, idx, block):
+        mask = self.create_sentence_end_mask(idx)
+        x_sentence_end = block(x[mask].unsqueeze(0))
+        x[mask] = x_sentence_end.squeeze(0)
+        return x
+
 class GPT(nn.Module):
 
     def __init__(self, config):
@@ -136,6 +159,8 @@ class GPT(nn.Module):
         # This behavior is deprecated and will be an error in future versions"
         # not 100% sure what this is, so far seems to be harmless. TODO investigate
         self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
+
+        self.sentence_end_processor = SentenceEndProcessor(config.vocab_size)
 
         # init all weights
         self.apply(self._init_weights)
@@ -177,8 +202,13 @@ class GPT(nn.Module):
         tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
         pos_emb = self.transformer.wpe(pos) # position embeddings of shape (t, n_embd)
         x = self.transformer.drop(tok_emb + pos_emb)
-        for block in self.transformer.h:
-            x = block(x)
+
+        for i, block in enumerate(self.transformer.h):
+            if 0 < i < len(self.transformer.h) - 1:  # Middle layers
+                x = self.sentence_end_processor.process_middle_layer(x, idx, block)
+            else:  # First and last layers
+                x = block(x)
+
         x = self.transformer.ln_f(x)
 
         if targets is not None:
@@ -191,17 +221,6 @@ class GPT(nn.Module):
             loss = None
 
         return logits, loss
-
-    def crop_block_size(self, block_size):
-        # model surgery to decrease the block size if necessary
-        # e.g. we may load the GPT2 pretrained model checkpoint (block size 1024)
-        # but want to use a smaller block size for some smaller, simpler model
-        assert block_size <= self.config.block_size
-        self.config.block_size = block_size
-        self.transformer.wpe.weight = nn.Parameter(self.transformer.wpe.weight[:block_size])
-        for block in self.transformer.h:
-            if hasattr(block.attn, 'bias'):
-                block.attn.bias = block.attn.bias[:,:,:block_size,:block_size]
 
     @classmethod
     def from_pretrained(cls, model_type, override_args=None):
