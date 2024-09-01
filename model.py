@@ -14,6 +14,26 @@ from dataclasses import dataclass
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+import tiktoken
+
+class SentenceEndProcessor:
+    def __init__(self, vocab_size):
+        self.vocab_size = vocab_size
+        self.sentence_end_tokens = ['.', '?', '!']
+        self.tokenizer = tiktoken.get_encoding("gpt2")
+        self.sentence_end_ids = self.get_sentence_end_ids()
+
+    def get_sentence_end_ids(self):
+        return [self.tokenizer.encode(token)[0] for token in self.sentence_end_tokens]
+
+    def create_sentence_end_mask(self, idx):
+        return torch.isin(idx, torch.tensor(self.sentence_end_ids, device=idx.device))
+
+    def process_middle_layer(self, x, idx, block):
+        mask = self.create_sentence_end_mask(idx)
+        x_sentence_end = block(x[mask].unsqueeze(0))
+        x[mask] = x_sentence_end.squeeze(0)
+        return x
 
 class LayerNorm(nn.Module):
     """ LayerNorm but with an optional bias. PyTorch doesn't support simply bias=False """
@@ -115,29 +135,6 @@ class GPTConfig:
     dropout: float = 0.0
     bias: bool = True # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
 
-class SentenceEndProcessor:
-    def __init__(self, vocab_size):
-        self.vocab_size = vocab_size
-        self.sentence_end_tokens = ['.', '?', '!']
-        self.sentence_end_ids = None
-
-    def get_sentence_end_ids(self, device):
-        if self.sentence_end_ids is None or self.sentence_end_ids.device != device:
-            self.sentence_end_ids = torch.tensor([
-                self.vocab_size - 1 if token == '<|endoftext|>' else ord(token)
-                for token in self.sentence_end_tokens
-            ], device=device)
-        return self.sentence_end_ids
-
-    def create_sentence_end_mask(self, idx):
-        return torch.isin(idx, self.get_sentence_end_ids(idx.device))
-
-    def process_middle_layer(self, x, idx, block):
-        mask = self.create_sentence_end_mask(idx)
-        x_sentence_end = block(x[mask].unsqueeze(0))
-        x[mask] = x_sentence_end.squeeze(0)
-        return x
-
 class GPT(nn.Module):
 
     def __init__(self, config):
@@ -216,8 +213,8 @@ class GPT(nn.Module):
             logits = self.lm_head(x)
             loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
         else:
-            # inference-time mini-optimization: only forward the lm_head on the very last position
-            logits = self.lm_head(x[:, [-1], :]) # note: using list [-1] to preserve the time dim
+            # Remove the inference-time optimization to return logits for all tokens
+            logits = self.lm_head(x)
             loss = None
 
         return logits, loss
