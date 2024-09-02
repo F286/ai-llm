@@ -50,52 +50,61 @@ class LayerNorm(nn.Module):
         return F.layer_norm(input, self.weight.shape, self.weight, self.bias, 1e-5)
 
 class CausalSelfAttention(nn.Module):
-
-    def __init__(self, config):
+    def __init__(self, config, use_local_attention=False):
         super().__init__()
         assert config.n_embd % config.n_head == 0
-        # key, query, value projections for all heads, but in a batch
-        self.c_attn = nn.Linear(config.n_embd, 3 * config.n_embd, bias=config.bias)
-        # output projection
-        self.c_proj = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
-        # regularization
-        self.attn_dropout = nn.Dropout(config.dropout)
-        self.resid_dropout = nn.Dropout(config.dropout)
+        self.use_local_attention = use_local_attention
+        self.window_size = 64  # Fixed window size for local attention
         self.n_head = config.n_head
         self.n_embd = config.n_embd
         self.dropout = config.dropout
-        # flash attention make GPU go brrrrr but support is only in PyTorch >= 2.0
-        self.flash = hasattr(torch.nn.functional, 'scaled_dot_product_attention')
-        if not self.flash:
-            print("WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
-            # causal mask to ensure that attention is only applied to the left in the input sequence
-            self.register_buffer("bias", torch.tril(torch.ones(config.block_size, config.block_size))
-                                        .view(1, 1, config.block_size, config.block_size))
+
+        if self.use_local_attention:
+            self.local_attn = LocalAttention(
+                dim=config.n_embd // config.n_head,
+                window_size=self.window_size,
+                causal=True,
+                dropout=config.dropout
+            )
+        else:
+            self.c_attn = nn.Linear(config.n_embd, 3 * config.n_embd, bias=config.bias)
+            self.c_proj = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
+            self.attn_dropout = nn.Dropout(config.dropout)
+            self.resid_dropout = nn.Dropout(config.dropout)
+            self.flash = hasattr(torch.nn.functional, 'scaled_dot_product_attention')
+            if not self.flash:
+                print("WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
+                self.register_buffer("bias", torch.tril(torch.ones(config.block_size, config.block_size))
+                                            .view(1, 1, config.block_size, config.block_size))
 
     def forward(self, x):
-        B, T, C = x.size() # batch size, sequence length, embedding dimensionality (n_embd)
+        B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
 
-        # calculate query, key, values for all heads in batch and move head forward to be the batch dim
-        q, k, v  = self.c_attn(x).split(self.n_embd, dim=2)
-        k = k.view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
-        q = q.view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
-        v = v.view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
-
-        # causal self-attention; Self-attend: (B, nh, T, hs) x (B, nh, hs, T) -> (B, nh, T, T)
-        if self.flash:
-            # efficient attention using Flash Attention CUDA kernels
-            y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=None, dropout_p=self.dropout if self.training else 0, is_causal=True)
+        if self.use_local_attention:
+            q = x.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
+            k = q
+            v = q
+            mask = torch.ones(B, T, device=x.device).bool()  # (B, T)
+            y = self.local_attn(q, k, v, mask=mask)  # (B, nh, T, hs)
+            y = y.transpose(1, 2).contiguous().view(B, T, C)  # (B, T, C)
         else:
-            # manual implementation of attention
-            att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
-            att = att.masked_fill(self.bias[:,:,:T,:T] == 0, float('-inf'))
-            att = F.softmax(att, dim=-1)
-            att = self.attn_dropout(att)
-            y = att @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
-        y = y.transpose(1, 2).contiguous().view(B, T, C) # re-assemble all head outputs side by side
+            q, k, v = self.c_attn(x).split(self.n_embd, dim=2)
+            k = k.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
+            q = q.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
+            v = v.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
 
-        # output projection
-        y = self.resid_dropout(self.c_proj(y))
+            if self.flash:
+                y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=None, dropout_p=self.dropout if self.training else 0, is_causal=True)
+            else:
+                att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
+                att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float('-inf'))
+                att = F.softmax(att, dim=-1)
+                att = self.attn_dropout(att)
+                y = att @ v  # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+            y = y.transpose(1, 2).contiguous().view(B, T, C)  # (B, T, C)
+
+        if not self.use_local_attention:
+            y = self.resid_dropout(self.c_proj(y))
         return y
 
 class MLP(nn.Module):
@@ -204,10 +213,13 @@ class GPT(nn.Module):
         x = self.transformer.drop(tok_emb + pos_emb)
 
         for i, block in enumerate(self.transformer.h):
-            if 0 < i < len(self.transformer.h) - 1:  # Middle layers
+            if i == 0 or i == len(self.transformer.h) - 1:  # First and last layers
+                x = block.ln_1(x)
+                x = x + block.attn(x)
+                x = block.ln_2(x)
+                x = x + block.mlp(x)
+            else:  # Middle layers
                 x = self.sentence_end_processor.process_middle_layer(x, idx, block)
-            else:  # First and last layers
-                x = block(x)
 
         x = self.transformer.ln_f(x)
 
