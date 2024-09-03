@@ -16,6 +16,7 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 import tiktoken
+from local_attention import LocalAttention
 
 class SentenceEndProcessor:
     def __init__(self, vocab_size, sentence_end_tokens):
@@ -75,17 +76,27 @@ class CausalSelfAttention(nn.Module):
                 print("WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
                 self.register_buffer("bias", torch.tril(torch.ones(config.block_size, config.block_size))
                                             .view(1, 1, config.block_size, config.block_size))
-
     def forward(self, x):
         B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
 
         if self.use_local_attention:
+            # Pad the input to make it a multiple of the window size
+            original_T = T
+            if T % self.window_size != 0:
+                padding = self.window_size - (T % self.window_size)
+                x = F.pad(x, (0, 0, 0, padding))
+                B, T, C = x.size()  # Update T after padding
+
             q = x.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
             k = q
             v = q
             mask = torch.ones(B, T, device=x.device).bool()  # (B, T)
             y = self.local_attn(q, k, v, mask=mask)  # (B, nh, T, hs)
             y = y.transpose(1, 2).contiguous().view(B, T, C)  # (B, T, C)
+
+            # Remove padding if we added it
+            if T > original_T:
+                y = y[:, :original_T, :]
         else:
             q, k, v = self.c_attn(x).split(self.n_embd, dim=2)
             k = k.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
@@ -124,10 +135,10 @@ class MLP(nn.Module):
 
 class Block(nn.Module):
 
-    def __init__(self, config):
+    def __init__(self, config, use_local_attention=False):
         super().__init__()
         self.ln_1 = LayerNorm(config.n_embd, bias=config.bias)
-        self.attn = CausalSelfAttention(config)
+        self.attn = CausalSelfAttention(config, use_local_attention=use_local_attention)
         self.ln_2 = LayerNorm(config.n_embd, bias=config.bias)
         self.mlp = MLP(config)
 
@@ -160,7 +171,7 @@ class GPT(nn.Module):
             wte = nn.Embedding(config.vocab_size, config.n_embd),
             wpe = nn.Embedding(config.block_size, config.n_embd),
             drop = nn.Dropout(config.dropout),
-            h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
+            h = nn.ModuleList([Block(config, use_local_attention=(i == 0 or i == config.n_layer - 1)) for i in range(config.n_layer)]),
             ln_f = LayerNorm(config.n_embd, bias=config.bias),
         ))
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)

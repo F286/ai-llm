@@ -1,4 +1,5 @@
-# To run tests, in Terminal type: python test.py
+# To run tests, in Powershell type: python test.py
+# To run evaluation, in Powershell type: python sample.py --out_dir=out-shakespeare-char --device=cpu
 
 import unittest
 import torch
