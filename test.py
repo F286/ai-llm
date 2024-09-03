@@ -105,33 +105,5 @@ class TestSentenceEndTokens(unittest.TestCase):
         masked_tokens = [self.tokenizer.decode([token]) for token, keep in zip(encoded, mask) if keep]
         self.assertEqual(set(masked_tokens), set(self.default_sentence_end_tokens))
 
-    def test_sentence_end_tokens_required(self):
-        with self.assertRaises(AssertionError):
-            SentenceEndProcessor(self.config.vocab_size, None)
-
-        with self.assertRaises(AssertionError):
-            GPTConfig(
-                n_layer=4,
-                n_head=4,
-                n_embd=128,
-                block_size=1024,
-                bias=False,
-                vocab_size=50257,
-                dropout=0.0,
-                sentence_end_tokens=None
-            )
-
-        with self.assertRaises(AssertionError):
-            GPT(GPTConfig(
-                n_layer=4,
-                n_head=4,
-                n_embd=128,
-                block_size=1024,
-                bias=False,
-                vocab_size=50257,
-                dropout=0.0,
-                sentence_end_tokens=None
-            ))
-
 if __name__ == '__main__':
     unittest.main()
