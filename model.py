@@ -126,9 +126,9 @@ class Block(nn.Module):
 
     def __init__(self, config, use_local_attention=False):
         super().__init__()
-        self.ln_1 = nn.LayerNorm(config.n_embd, bias=config.bias)
+        self.ln_1 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)
         self.attn = CausalSelfAttention(config, use_local_attention=use_local_attention)
-        self.ln_2 = nn.LayerNorm(config.n_embd, bias=config.bias)
+        self.ln_2 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)
         self.mlp = MLP(config)
 
     def forward(self, x):
@@ -171,6 +171,7 @@ class GPT(nn.Module):
         self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
 
         self.sentence_end_processor = SentenceEndProcessor(config.vocab_size, config.sentence_end_tokens)
+        self.space_processor = SentenceEndProcessor(config.vocab_size, [" "])  # Space token
 
         # init all weights
         self.apply(self._init_weights)
@@ -206,22 +207,22 @@ class GPT(nn.Module):
         device = idx.device
         b, t = idx.size()
         assert t <= self.config.block_size, f"Cannot forward sequence of length {t}, block size is only {self.config.block_size}"
-        pos = torch.arange(0, t, dtype=torch.long, device=device) # shape (t)
+        pos = torch.arange(0, t, dtype=torch.long, device=device).unsqueeze(0) # shape (1, t)
 
         # forward the GPT model itself
         tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
-        pos_emb = self.transformer.wpe(pos) # position embeddings of shape (t, n_embd)
+        pos_emb = self.transformer.wpe(pos) # position embeddings of shape (1, t, n_embd)
         x = self.transformer.drop(tok_emb + pos_emb)
-
         for i, block in enumerate(self.transformer.h):
             if i == 0 or i == len(self.transformer.h) - 1:  # First and last layers
                 x = block.ln_1(x)
                 x = x + block.attn(x)
                 x = block.ln_2(x)
                 x = x + block.mlp(x)
-            else:  # Middle layers
+            elif i in [1, len(self.transformer.h) - 2]:  # 2nd, and 2nd from last layers
+                x = self.space_processor.process_middle_layer(x, idx, block)
+            else:  # Other middle layers
                 x = self.sentence_end_processor.process_middle_layer(x, idx, block)
-
         x = self.transformer.ln_f(x)
 
         if targets is not None:
