@@ -9,18 +9,17 @@ https://github.com/huggingface/transformers/blob/main/src/transformers/models/gp
 
 import math
 import inspect
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import List
 
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
 import tiktoken
 
-# Define the default sentence end tokens
-DEFAULT_SENTENCE_END_TOKENS = ['.', '?', '!', '\n']
-
 class SentenceEndProcessor:
-    def __init__(self, vocab_size, sentence_end_tokens=DEFAULT_SENTENCE_END_TOKENS):
+    def __init__(self, vocab_size, sentence_end_tokens):
+        assert sentence_end_tokens is not None, "sentence_end_tokens must be provided"
         self.vocab_size = vocab_size
         self.sentence_end_tokens = sentence_end_tokens
         self.tokenizer = tiktoken.get_encoding("gpt2")
@@ -146,6 +145,7 @@ class GPTConfig:
     n_embd: int = 768
     dropout: float = 0.0
     bias: bool = True # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
+    sentence_end_tokens: List[str] = field(default_factory=lambda: ['.', '?', '!', '\n'])
 
 class GPT(nn.Module):
 
@@ -153,6 +153,7 @@ class GPT(nn.Module):
         super().__init__()
         assert config.vocab_size is not None
         assert config.block_size is not None
+        assert config.sentence_end_tokens is not None, "sentence_end_tokens must be provided in config"
         self.config = config
 
         self.transformer = nn.ModuleDict(dict(
@@ -169,7 +170,7 @@ class GPT(nn.Module):
         # not 100% sure what this is, so far seems to be harmless. TODO investigate
         self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
 
-        self.sentence_end_processor = SentenceEndProcessor(config.vocab_size)
+        self.sentence_end_processor = SentenceEndProcessor(config.vocab_size, config.sentence_end_tokens)
 
         # init all weights
         self.apply(self._init_weights)

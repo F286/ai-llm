@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 from model import SentenceEndProcessor, GPTConfig
 import tiktoken
 
-def visualize_attention_mask(sentence):
+def visualize_attention_mask(sentence, sentence_end_tokens):
+    assert sentence_end_tokens is not None, "sentence_end_tokens must be provided"
     # Initialize tokenizer and SentenceEndProcessor
     tokenizer = tiktoken.get_encoding("gpt2")
-    config = GPTConfig()
-    processor = SentenceEndProcessor(config.vocab_size)
+    config = GPTConfig(sentence_end_tokens=sentence_end_tokens)
+    processor = SentenceEndProcessor(config.vocab_size, config.sentence_end_tokens)
 
     # Tokenize the sentence
     tokens = tokenizer.encode(sentence)
@@ -50,11 +51,14 @@ def visualize_attention_mask(sentence):
     print("Note: Sentence end tokens receive special processing in middle layers, but don't change the attention mask.")
 
 # Example usage
+default_sentence_end_tokens = ['.', '?', '!', '\n']
+custom_sentence_end_tokens = ['.', '?', '!', '\n', ';']
+
 sentence1 = "Hello, world! How are you? I'm fine."
 sentence2 = "This is a test. It has multiple sentences. Does it work?"
 
-print("Visualizing attention masks for sentence 1:")
-visualize_attention_mask(sentence1)
+print("Visualizing attention masks for sentence 1 (default tokens):")
+visualize_attention_mask(sentence1, default_sentence_end_tokens)
 
-print("\nVisualizing attention masks for sentence 2:")
-visualize_attention_mask(sentence2)
+print("\nVisualizing attention masks for sentence 2 (custom tokens):")
+visualize_attention_mask(sentence2, custom_sentence_end_tokens)
