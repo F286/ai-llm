@@ -9,101 +9,70 @@ https://github.com/huggingface/transformers/blob/main/src/transformers/models/gp
 
 import math
 import inspect
-from dataclasses import dataclass, field
-from typing import List
+from dataclasses import dataclass
 
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-import tiktoken
-from local_attention import LocalAttention
 
-class SentenceEndProcessor:
-    def __init__(self, vocab_size, sentence_end_tokens):
-        assert sentence_end_tokens is not None, "sentence_end_tokens must be provided"
-        self.vocab_size = vocab_size
-        self.sentence_end_tokens = sentence_end_tokens
-        self.tokenizer = tiktoken.get_encoding("gpt2")
-        self.sentence_end_ids = self.get_sentence_end_ids()
+class LayerNorm(nn.Module):
+    """ LayerNorm but with an optional bias. PyTorch doesn't support simply bias=False """
 
-    def get_sentence_end_ids(self):
-        return [self.tokenizer.encode(token)[0] for token in self.sentence_end_tokens]
+    def __init__(self, ndim, bias):
+        super().__init__()
+        self.weight = nn.Parameter(torch.ones(ndim))
+        self.bias = nn.Parameter(torch.zeros(ndim)) if bias else None
 
-    def create_sentence_end_mask(self, idx):
-        return torch.isin(idx, torch.tensor(self.sentence_end_ids, device=idx.device))
-
-    def process_middle_layer(self, x, idx, block):
-        mask = self.create_sentence_end_mask(idx)
-        x_sentence_end = block(x[mask].unsqueeze(0))
-        x[mask] = x_sentence_end.squeeze(0)
-        return x
+    def forward(self, input):
+        return F.layer_norm(input, self.weight.shape, self.weight, self.bias, 1e-5)
 
 class CausalSelfAttention(nn.Module):
-    def __init__(self, config, use_local_attention=False):
+
+    def __init__(self, config):
         super().__init__()
         assert config.n_embd % config.n_head == 0
-        self.use_local_attention = use_local_attention
-        self.window_size = 64  # Fixed window size for local attention
+        # key, query, value projections for all heads, but in a batch
+        self.c_attn = nn.Linear(config.n_embd, 3 * config.n_embd, bias=config.bias)
+        # output projection
+        self.c_proj = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
+        # regularization
+        self.attn_dropout = nn.Dropout(config.dropout)
+        self.resid_dropout = nn.Dropout(config.dropout)
         self.n_head = config.n_head
         self.n_embd = config.n_embd
         self.dropout = config.dropout
+        # flash attention make GPU go brrrrr but support is only in PyTorch >= 2.0
+        self.flash = hasattr(torch.nn.functional, 'scaled_dot_product_attention')
+        if not self.flash:
+            print("WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
+            # causal mask to ensure that attention is only applied to the left in the input sequence
+            self.register_buffer("bias", torch.tril(torch.ones(config.block_size, config.block_size))
+                                        .view(1, 1, config.block_size, config.block_size))
 
-        if self.use_local_attention:
-            self.local_attn = LocalAttention(
-                dim=config.n_embd // config.n_head,
-                window_size=self.window_size,
-                causal=True,
-                dropout=config.dropout
-            )
-        else:
-            self.c_attn = nn.Linear(config.n_embd, 3 * config.n_embd, bias=config.bias)
-            self.c_proj = nn.Linear(config.n_embd, config.n_embd, bias=config.bias)
-            self.attn_dropout = nn.Dropout(config.dropout)
-            self.resid_dropout = nn.Dropout(config.dropout)
-            self.flash = hasattr(torch.nn.functional, 'scaled_dot_product_attention')
-            if not self.flash:
-                print("WARNING: using slow attention. Flash Attention requires PyTorch >= 2.0")
-                self.register_buffer("bias", torch.tril(torch.ones(config.block_size, config.block_size))
-                                            .view(1, 1, config.block_size, config.block_size))
     def forward(self, x):
-        B, T, C = x.size()  # batch size, sequence length, embedding dimensionality (n_embd)
+        B, T, C = x.size() # batch size, sequence length, embedding dimensionality (n_embd)
 
-        if self.use_local_attention:
-            # Pad the input to make it a multiple of the window size
-            original_T = T
-            if T % self.window_size != 0:
-                padding = self.window_size - (T % self.window_size)
-                x = F.pad(x, (0, 0, 0, padding))
-                B, T, C = x.size()  # Update T after padding
+        # calculate query, key, values for all heads in batch and move head forward to be the batch dim
+        q, k, v  = self.c_attn(x).split(self.n_embd, dim=2)
+        k = k.view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
+        q = q.view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
+        v = v.view(B, T, self.n_head, C // self.n_head).transpose(1, 2) # (B, nh, T, hs)
 
-            q = x.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
-            k = q
-            v = q
-            mask = torch.ones(B, T, device=x.device).bool()  # (B, T)
-            y = self.local_attn(q, k, v, mask=mask)  # (B, nh, T, hs)
-            y = y.transpose(1, 2).contiguous().view(B, T, C)  # (B, T, C)
-
-            # Remove padding if we added it
-            if T > original_T:
-                y = y[:, :original_T, :]
+        # causal self-attention; Self-attend: (B, nh, T, hs) x (B, nh, hs, T) -> (B, nh, T, T)
+        if self.flash:
+            # efficient attention using Flash Attention CUDA kernels
+            y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=None, dropout_p=self.dropout if self.training else 0, is_causal=True)
         else:
-            q, k, v = self.c_attn(x).split(self.n_embd, dim=2)
-            k = k.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
-            q = q.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
-            v = v.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)  # (B, nh, T, hs)
+            # manual implementation of attention
+            att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
+            att = att.masked_fill(self.bias[:,:,:T,:T] == 0, float('-inf'))
+            att = F.softmax(att, dim=-1)
+            att = self.attn_dropout(att)
+            y = att @ v # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+        y = y.transpose(1, 2).contiguous().view(B, T, C) # re-assemble all head outputs side by side
 
-            if self.flash:
-                y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=None, dropout_p=self.dropout if self.training else 0, is_causal=True)
-            else:
-                att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
-                att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float('-inf'))
-                att = F.softmax(att, dim=-1)
-                att = self.attn_dropout(att)
-                y = att @ v  # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
-            y = y.transpose(1, 2).contiguous().view(B, T, C)  # (B, T, C)
-
-        if not self.use_local_attention:
-            y = self.resid_dropout(self.c_proj(y))
+        # output projection
+        y = self.resid_dropout(self.c_proj(y))
         return y
 
 class MLP(nn.Module):
@@ -124,11 +93,11 @@ class MLP(nn.Module):
 
 class Block(nn.Module):
 
-    def __init__(self, config, use_local_attention=False):
+    def __init__(self, config):
         super().__init__()
-        self.ln_1 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)
-        self.attn = CausalSelfAttention(config, use_local_attention=use_local_attention)
-        self.ln_2 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)
+        self.ln_1 = LayerNorm(config.n_embd, bias=config.bias)
+        self.attn = CausalSelfAttention(config)
+        self.ln_2 = LayerNorm(config.n_embd, bias=config.bias)
         self.mlp = MLP(config)
 
     def forward(self, x):
@@ -144,8 +113,7 @@ class GPTConfig:
     n_head: int = 12
     n_embd: int = 768
     dropout: float = 0.0
-    bias: bool = False # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
-    sentence_end_tokens: List[str] = field(default_factory=lambda: ['.', '?', '!', '\n'])
+    bias: bool = True # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
 
 class GPT(nn.Module):
 
@@ -153,15 +121,14 @@ class GPT(nn.Module):
         super().__init__()
         assert config.vocab_size is not None
         assert config.block_size is not None
-        assert config.sentence_end_tokens is not None, "sentence_end_tokens must be provided in config"
         self.config = config
 
         self.transformer = nn.ModuleDict(dict(
             wte = nn.Embedding(config.vocab_size, config.n_embd),
             wpe = nn.Embedding(config.block_size, config.n_embd),
             drop = nn.Dropout(config.dropout),
-            h = nn.ModuleList([Block(config, use_local_attention=(i == 0 or i == config.n_layer - 1)) for i in range(config.n_layer)]),
-            ln_f = nn.LayerNorm(config.n_embd, bias=config.bias),
+            h = nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
+            ln_f = LayerNorm(config.n_embd, bias=config.bias),
         ))
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         # with weight tying when using torch.compile() some warnings get generated:
@@ -169,9 +136,6 @@ class GPT(nn.Module):
         # This behavior is deprecated and will be an error in future versions"
         # not 100% sure what this is, so far seems to be harmless. TODO investigate
         self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
-
-        self.sentence_end_processor = SentenceEndProcessor(config.vocab_size, config.sentence_end_tokens)
-        self.space_processor = SentenceEndProcessor(config.vocab_size, [" "])  # Space token
 
         # init all weights
         self.apply(self._init_weights)
@@ -207,22 +171,14 @@ class GPT(nn.Module):
         device = idx.device
         b, t = idx.size()
         assert t <= self.config.block_size, f"Cannot forward sequence of length {t}, block size is only {self.config.block_size}"
-        pos = torch.arange(0, t, dtype=torch.long, device=device).unsqueeze(0) # shape (1, t)
+        pos = torch.arange(0, t, dtype=torch.long, device=device) # shape (t)
 
         # forward the GPT model itself
         tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
-        pos_emb = self.transformer.wpe(pos) # position embeddings of shape (1, t, n_embd)
+        pos_emb = self.transformer.wpe(pos) # position embeddings of shape (t, n_embd)
         x = self.transformer.drop(tok_emb + pos_emb)
-        for i, block in enumerate(self.transformer.h):
-            if i == 0 or i == len(self.transformer.h) - 1:  # First and last layers
-                x = block.ln_1(x)
-                x = x + block.attn(x)
-                x = block.ln_2(x)
-                x = x + block.mlp(x)
-            elif i in [1, len(self.transformer.h) - 2]:  # 2nd, and 2nd from last layers
-                x = self.space_processor.process_middle_layer(x, idx, block)
-            else:  # Other middle layers
-                x = self.sentence_end_processor.process_middle_layer(x, idx, block)
+        for block in self.transformer.h:
+            x = block(x)
         x = self.transformer.ln_f(x)
 
         if targets is not None:
@@ -230,11 +186,22 @@ class GPT(nn.Module):
             logits = self.lm_head(x)
             loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1)
         else:
-            # Remove the inference-time optimization to return logits for all tokens
-            logits = self.lm_head(x)
+            # inference-time mini-optimization: only forward the lm_head on the very last position
+            logits = self.lm_head(x[:, [-1], :]) # note: using list [-1] to preserve the time dim
             loss = None
 
         return logits, loss
+
+    def crop_block_size(self, block_size):
+        # model surgery to decrease the block size if necessary
+        # e.g. we may load the GPT2 pretrained model checkpoint (block size 1024)
+        # but want to use a smaller block size for some smaller, simpler model
+        assert block_size <= self.config.block_size
+        self.config.block_size = block_size
+        self.transformer.wpe.weight = nn.Parameter(self.transformer.wpe.weight[:block_size])
+        for block in self.transformer.h:
+            if hasattr(block.attn, 'bias'):
+                block.attn.bias = block.attn.bias[:,:,:block_size,:block_size]
 
     @classmethod
     def from_pretrained(cls, model_type, override_args=None):
