@@ -43,7 +43,7 @@ class CausalSelfAttention(nn.Module):
         super().__init__()
         assert config.n_embd % config.n_head == 0
         self.use_local_attention = use_local_attention
-        self.window_size = 64  # Fixed window size for local attention
+        self.window_size = 8  # Fixed window size for local attention
         self.n_head = config.n_head
         self.n_embd = config.n_embd
         self.dropout = config.dropout
