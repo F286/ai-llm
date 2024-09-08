@@ -1,7 +1,7 @@
 import unittest
 import torch
 import tiktoken
-from model import GPT, GPTConfig, SentenceEndProcessor
+from model import GPT, GPTConfig, SentenceEndProcessor, NonZeroRowProcessor, MLP
 
 def verify_sentence_end_tokens(tokenizer, sentence_end_tokens):
     encoded_tokens = [tokenizer.encode(token) for token in sentence_end_tokens]
@@ -112,6 +112,71 @@ class TestSentenceEndTokens(unittest.TestCase):
                 self.assertTrue(torch.all(result[0, i] == x[0, i] * 2))
             else:
                 self.assertTrue(torch.all(result[0, i] == x[0, i]))
+
+class TestNonZeroRowProcessor(unittest.TestCase):
+    def setUp(self):
+        self.config = GPTConfig(
+            n_layer=4,
+            n_head=4,
+            n_embd=128,
+            block_size=1024,
+            bias=False,
+            vocab_size=50257,
+            dropout=0.0
+        )
+        self.mlp = MLP(self.config)
+
+    def test_non_zero_row_processor(self):
+        # Create a sample input with some zero rows
+        x = torch.tensor([
+            [1.0, 2.0, 3.0],
+            [0.0, 0.0, 0.0],
+            [4.0, 5.0, 6.0],
+            [0.0, 0.0, 0.0],
+            [7.0, 8.0, 9.0]
+        ])
+
+        # Process the input through MLP with NonZeroRowProcessor
+        with NonZeroRowProcessor(x):
+            result = self.mlp(x)
+
+        # Check that the result has the same shape as the input
+        self.assertEqual(x.shape, result.shape)
+
+        # Check that zero rows in the input remain zero in the output
+        self.assertTrue(torch.all(result[1] == 0))
+        self.assertTrue(torch.all(result[3] == 0))
+
+        # Check that non-zero rows have been processed
+        self.assertFalse(torch.all(result[0] == x[0]))
+        self.assertFalse(torch.all(result[2] == x[2]))
+        self.assertFalse(torch.all(result[4] == x[4]))
+
+    def test_all_zero_input(self):
+        # Create an input with all zero rows
+        x = torch.zeros((5, 3))
+
+        # Process the input through MLP with NonZeroRowProcessor
+        with NonZeroRowProcessor(x):
+            result = self.mlp(x)
+
+        # Check that the result is all zeros
+        self.assertTrue(torch.all(result == 0))
+
+    def test_all_non_zero_input(self):
+        # Create an input with no zero rows
+        x = torch.rand((5, 3))
+
+        # Process the input through MLP with NonZeroRowProcessor
+        with NonZeroRowProcessor(x):
+            result = self.mlp(x)
+
+        # Check that the result has the same shape as the input
+        self.assertEqual(x.shape, result.shape)
+
+        # Check that all rows have been processed
+        for i in range(x.shape[0]):
+            self.assertFalse(torch.all(result[i] == x[i]))
 
 if __name__ == '__main__':
     unittest.main()

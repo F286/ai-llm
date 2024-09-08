@@ -115,6 +115,23 @@ class CausalSelfAttention(nn.Module):
             y = self.resid_dropout(self.c_proj(y))
         return y
 
+class NonZeroRowProcessor:
+    def __init__(self, x):
+        self.x = x
+        self.original_shape = x.shape
+        self.x_reshaped = x.view(-1, x.size(-1))
+        self.non_zero_mask = (self.x_reshaped.abs().sum(dim=-1) != 0)
+        self.x_non_zero = self.x_reshaped[self.non_zero_mask]
+
+    def __enter__(self):
+        return self.x_non_zero if self.non_zero_mask.any() else self.x
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.non_zero_mask.any():
+            result = torch.zeros_like(self.x_reshaped)
+            result[self.non_zero_mask] = self.x_non_zero
+            self.x.data = result.view(self.original_shape)
+
 class MLP(nn.Module):
 
     def __init__(self, config):
@@ -125,10 +142,11 @@ class MLP(nn.Module):
         self.dropout = nn.Dropout(config.dropout)
 
     def forward(self, x):
-        x = self.c_fc(x)
-        x = self.gelu(x)
-        x = self.c_proj(x)
-        x = self.dropout(x)
+        with NonZeroRowProcessor(x):
+            x = self.c_fc(x)
+            x = self.gelu(x)
+            x = self.c_proj(x)
+            x = self.dropout(x)
         return x
 
 class Block(nn.Module):
