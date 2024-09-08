@@ -1,6 +1,3 @@
-# To run tests, in Powershell type: python test.py
-# To run evaluation, in Powershell type: python sample.py --out_dir=out-shakespeare-char --device=cpu
-
 import unittest
 import torch
 import tiktoken
@@ -65,45 +62,56 @@ class TestSentenceEndTokens(unittest.TestCase):
         for token, token_id in zip(self.default_sentence_end_tokens, model.sentence_end_processor.sentence_end_ids):
             self.assertEqual(token_id, self.tokenizer.encode(token)[0])
 
-    def test_sentence_end_mask(self):
+    def test_sentence_end_mask_sparse(self):
         processor = SentenceEndProcessor(self.config.vocab_size, self.default_sentence_end_tokens)
-        idx = torch.tensor([1, 2, 3, processor.sentence_end_ids[0], 5, processor.sentence_end_ids[1]])
-        mask = processor.create_sentence_end_mask(idx)
-        expected_mask = torch.tensor([False, False, False, True, False, True])
-        self.assertTrue(torch.all(mask == expected_mask))
+        idx = torch.tensor([[1, 2, 3, processor.sentence_end_ids[0], 5, processor.sentence_end_ids[1]]])
+        sparse_mask = processor.create_sentence_end_mask(idx)
+        
+        self.assertTrue(sparse_mask.is_sparse)
+        self.assertEqual(sparse_mask.size(), idx.size())
+        
+        dense_mask = sparse_mask.to_dense()
+        expected_mask = torch.tensor([[0, 0, 0, 1, 0, 1]], dtype=torch.float)
+        self.assertTrue(torch.all(dense_mask == expected_mask))
 
-    def test_sentence_end_mask_comprehensive(self):
+    def test_sentence_end_mask_sparse_comprehensive(self):
         processor = SentenceEndProcessor(self.config.vocab_size, self.default_sentence_end_tokens)
         
-        # Create a sample input with a mix of sentence-end and non-sentence-end tokens
         sample_text = "Hello world.\nHow are you? I'm fine! This is a test."
-        encoded = self.tokenizer.encode(sample_text)
-        idx = torch.tensor(encoded)
-
-        # Get the mask
-        mask = processor.create_sentence_end_mask(idx)
-
-        # Verify the mask
-        expected_mask = torch.zeros_like(idx, dtype=torch.bool)
-        for i, token_id in enumerate(encoded):
+        encoded = torch.tensor([self.tokenizer.encode(sample_text)])
+        sparse_mask = processor.create_sentence_end_mask(encoded)
+        
+        self.assertTrue(sparse_mask.is_sparse)
+        self.assertEqual(sparse_mask.size(), encoded.size())
+        
+        dense_mask = sparse_mask.to_dense()
+        expected_mask = torch.zeros_like(encoded, dtype=torch.float)
+        for i, token_id in enumerate(encoded[0]):
             if token_id in processor.sentence_end_ids:
-                expected_mask[i] = True
+                expected_mask[0, i] = 1
+        
+        self.assertTrue(torch.all(dense_mask == expected_mask))
 
-        self.assertTrue(torch.all(mask == expected_mask))
-
-        # Print out the results for visual inspection
-        print("\nSentence-end masking test:")
-        print(f"Input text: {sample_text}")
-        print(f"Encoded: {encoded}")
-        print(f"Mask: {mask}")
-        print("Tokens kept:")
-        for token, is_kept in zip(sample_text.split(), mask.tolist()):
-            if is_kept:
-                print(f"  {token}")
-
-        # Verify that only sentence-end tokens are masked
-        masked_tokens = [self.tokenizer.decode([token]) for token, keep in zip(encoded, mask) if keep]
-        self.assertEqual(set(masked_tokens), set(self.default_sentence_end_tokens))
+    def test_process_middle_layer_sparse(self):
+        processor = SentenceEndProcessor(self.config.vocab_size, self.default_sentence_end_tokens)
+        
+        # Mock block that doubles its input
+        mock_block = lambda x: x * 2
+        
+        # Create a sample input
+        sample_text = "Hello world.\nHow are you? I'm fine! This is a test."
+        encoded = torch.tensor([self.tokenizer.encode(sample_text)])
+        x = torch.randn(encoded.size(0), encoded.size(1), self.config.n_embd)
+        
+        # Process the middle layer
+        result = processor.process_middle_layer(x, encoded, mock_block)
+        
+        # Check that only sentence end tokens are processed
+        for i, token_id in enumerate(encoded[0]):
+            if token_id in processor.sentence_end_ids:
+                self.assertTrue(torch.all(result[0, i] == x[0, i] * 2))
+            else:
+                self.assertTrue(torch.all(result[0, i] == x[0, i]))
 
 if __name__ == '__main__':
     unittest.main()

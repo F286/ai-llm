@@ -95,11 +95,20 @@ class CausalSelfAttention(nn.Module):
             if self.flash:
                 y = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=None, dropout_p=self.dropout if self.training else 0, is_causal=True)
             else:
+                # Create a mask for non-zero rows
+                non_zero_rows = (x.abs().sum(dim=-1) != 0)  # Shape: (B, T)
+                
                 att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
-                att = att.masked_fill(self.bias[:, :, :T, :T] == 0, float('-inf'))
+                
+                # Combine causal mask with non-zero rows mask
+                causal_mask = self.bias[:, :, :T, :T] == 1
+                combined_mask = causal_mask & non_zero_rows.unsqueeze(1).unsqueeze(2)
+                att = att.masked_fill(~combined_mask, float('-inf'))
+                
                 att = F.softmax(att, dim=-1)
                 att = self.attn_dropout(att)
                 y = att @ v  # (B, nh, T, T) x (B, nh, T, hs) -> (B, nh, T, hs)
+                
             y = y.transpose(1, 2).contiguous().view(B, T, C)  # (B, T, C)
 
         if not self.use_local_attention:
