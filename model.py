@@ -126,11 +126,10 @@ class MLP(nn.Module):
         self.dropout = nn.Dropout(config.dropout)
 
     def forward(self, x):
-        with NonZeroRowProcessor(x) as x_processed:
-            x_processed = self.c_fc(x_processed)
-            x_processed = self.gelu(x_processed)
-            x_processed = self.c_proj(x_processed)
-            x_processed = self.dropout(x_processed)
+        x = self.c_fc(x)
+        x = self.gelu(x)
+        x = self.c_proj(x)
+        x = self.dropout(x)
         return x
 
 class Block(nn.Module):
