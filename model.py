@@ -17,6 +17,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 import tiktoken
 from local_attention import LocalAttention
+from non_zero_row_processor import NonZeroRowProcessor
 
 class SentenceEndProcessor:
     def __init__(self, vocab_size, sentence_end_tokens):
@@ -125,10 +126,11 @@ class MLP(nn.Module):
         self.dropout = nn.Dropout(config.dropout)
 
     def forward(self, x):
-        x = self.c_fc(x)
-        x = self.gelu(x)
-        x = self.c_proj(x)
-        x = self.dropout(x)
+        with NonZeroRowProcessor(x) as x_processed:
+            x_processed = self.c_fc(x_processed)
+            x_processed = self.gelu(x_processed)
+            x_processed = self.c_proj(x_processed)
+            x_processed = self.dropout(x_processed)
         return x
 
 class Block(nn.Module):
