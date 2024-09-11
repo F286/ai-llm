@@ -17,7 +17,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 import tiktoken
 from local_attention import LocalAttention
-from non_zero_row_processor import NonZeroRowProcessor
+from character_delimited_attention import CharacterDelimitedAttention
 
 class SentenceEndProcessor:
     def __init__(self, vocab_size, sentence_end_tokens):
@@ -38,6 +38,27 @@ class SentenceEndProcessor:
         x_sentence_end = block(x[mask].unsqueeze(0))
         x[mask] = x_sentence_end.squeeze(0)
         return x
+
+class CharacterDelimitedSelfAttention(nn.Module):
+    def __init__(self, config, delimiter_chars):
+        super().__init__()
+        assert config.n_embd % config.n_head == 0
+        self.n_head = config.n_head
+        self.n_embd = config.n_embd
+        self.dropout = config.dropout
+
+        self.char_delimited_attn = CharacterDelimitedAttention(
+            embed_dim=config.n_embd,
+            num_heads=config.n_head,
+            delimiter_chars=delimiter_chars,
+            normalize_v=True
+        )
+        self.resid_dropout = nn.Dropout(config.dropout)
+
+    def forward(self, x, char_ids):
+        y = self.char_delimited_attn(x, char_ids)
+        y = self.resid_dropout(y)
+        return y
 
 class CausalSelfAttention(nn.Module):
     def __init__(self, config, use_local_attention=False):
@@ -133,16 +154,22 @@ class MLP(nn.Module):
         return x
 
 class Block(nn.Module):
-
-    def __init__(self, config, use_local_attention=False):
+    def __init__(self, config, delimit_tokens=None):
         super().__init__()
         self.ln_1 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)
-        self.attn = CausalSelfAttention(config, use_local_attention=use_local_attention)
+        if delimit_tokens:
+            self.attn = CharacterDelimitedSelfAttention(config, delimiter_chars=delimit_tokens)
+        else:
+            self.attn = CausalSelfAttention(config)
         self.ln_2 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)
         self.mlp = MLP(config)
+        self.delimit_tokens = delimit_tokens
 
-    def forward(self, x):
-        x = x + self.attn(self.ln_1(x))
+    def forward(self, x, char_ids=None):
+        if self.delimit_tokens:
+            x = x + self.attn(self.ln_1(x), char_ids)
+        else:
+            x = x + self.attn(self.ln_1(x))
         x = x + self.mlp(self.ln_2(x))
         return x
 
@@ -156,6 +183,7 @@ class GPTConfig:
     dropout: float = 0.0
     bias: bool = False # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
     sentence_end_tokens: List[str] = field(default_factory=lambda: ['.', '?', '!', '\n'])
+    space_tokens: List[str] = field(default_factory=lambda: [' '])
 
 class GPT(nn.Module):
 
@@ -164,24 +192,21 @@ class GPT(nn.Module):
         assert config.vocab_size is not None
         assert config.block_size is not None
         assert config.sentence_end_tokens is not None, "sentence_end_tokens must be provided in config"
+        assert config.space_tokens is not None, "space_tokens must be provided in config"
         self.config = config
 
         self.transformer = nn.ModuleDict(dict(
             wte = nn.Embedding(config.vocab_size, config.n_embd),
             wpe = nn.Embedding(config.block_size, config.n_embd),
             drop = nn.Dropout(config.dropout),
-            h = nn.ModuleList([Block(config, use_local_attention=(i == 0 or i == config.n_layer - 1)) for i in range(config.n_layer)]),
+            h = nn.ModuleList([Block(config, delimit_tokens=self._get_delimit_tokens(i)) for i in range(config.n_layer)]),
             ln_f = nn.LayerNorm(config.n_embd, bias=config.bias),
         ))
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
-        # with weight tying when using torch.compile() some warnings get generated:
-        # "UserWarning: functional_call was passed multiple values for tied weights.
-        # This behavior is deprecated and will be an error in future versions"
-        # not 100% sure what this is, so far seems to be harmless. TODO investigate
         self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
 
         self.sentence_end_processor = SentenceEndProcessor(config.vocab_size, config.sentence_end_tokens)
-        self.space_processor = SentenceEndProcessor(config.vocab_size, [" "])  # Space token
+        self.space_processor = SentenceEndProcessor(config.vocab_size, config.space_tokens)
 
         # init all weights
         self.apply(self._init_weights)
@@ -213,6 +238,14 @@ class GPT(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
+    def _get_delimit_tokens(self, layer_index):
+        if layer_index in [1, self.config.n_layer - 2]:
+            return self.config.space_tokens
+        elif 1 < layer_index < self.config.n_layer - 2:
+            return self.config.sentence_end_tokens
+        else:
+            return None
+
     def forward(self, idx, targets=None):
         device = idx.device
         b, t = idx.size()
@@ -224,15 +257,14 @@ class GPT(nn.Module):
         pos_emb = self.transformer.wpe(pos) # position embeddings of shape (1, t, n_embd)
         x = self.transformer.drop(tok_emb + pos_emb)
         for i, block in enumerate(self.transformer.h):
-            if i == 0 or i == len(self.transformer.h) - 1:  # First and last layers
-                x = block.ln_1(x)
-                x = x + block.attn(x)
-                x = block.ln_2(x)
-                x = x + block.mlp(x)
-            elif i in [1, len(self.transformer.h) - 2]:  # 2nd, and 2nd from last layers
-                x = self.space_processor.process_middle_layer(x, idx, block)
-            else:  # Other middle layers
-                x = self.sentence_end_processor.process_middle_layer(x, idx, block)
+            if block.delimit_tokens:
+                x = block(x, idx)
+                if i == 1 or i == self.config.n_layer - 2:
+                    x = self.space_processor.process_middle_layer(x, idx, block)
+                elif 1 < i < self.config.n_layer - 2:
+                    x = self.sentence_end_processor.process_middle_layer(x, idx, block)
+            else:
+                x = block(x)
         x = self.transformer.ln_f(x)
 
         if targets is not None:
