@@ -31,10 +31,15 @@ class TestCharacterDelimitedAttentionMask(unittest.TestCase):
         region_mask = self.attention_mask._create_region_mask(region_tensor)
         expected = torch.tensor([[[1, 1, 0, 0, 0, 0],
                                   [1, 1, 0, 0, 0, 0],
-                                  [0, 0, 1, 1, 1, 0],
-                                  [0, 0, 1, 1, 1, 0],
-                                  [0, 0, 1, 1, 1, 0],
-                                  [0, 0, 0, 0, 0, 1]]], dtype=torch.bool)
+                                  [0, 1, 1, 1, 1, 0],
+                                  [0, 1, 1, 1, 1, 0],
+                                  [0, 1, 1, 1, 1, 0],
+                                  [0, 0, 0, 0, 1, 1]]], dtype=torch.bool)
+        
+        print("region_tensor")
+        print(region_tensor)
+        print("region_mask")
+        print(region_mask)
         self.assertTrue(torch.all(region_mask == expected))
 
     def test_create_causal_mask(self):
@@ -46,10 +51,10 @@ class TestCharacterDelimitedAttentionMask(unittest.TestCase):
         mask = self.attention_mask.create_causal_delimiter_mask(self.char_ids)
         expected = torch.tensor([[[1, 0, 0, 0, 0, 0],
                                   [1, 1, 0, 0, 0, 0],
-                                  [0, 0, 1, 0, 0, 0],
-                                  [0, 0, 1, 1, 0, 0],
-                                  [0, 0, 1, 1, 1, 0],
-                                  [0, 0, 0, 0, 0, 1]]], dtype=torch.bool)
+                                  [0, 1, 1, 0, 0, 0],
+                                  [0, 1, 1, 1, 0, 0],
+                                  [0, 1, 1, 1, 1, 0],
+                                  [0, 0, 0, 0, 1, 1]]], dtype=torch.bool)
         self.assertTrue(torch.all(mask == expected))
 
     def test_create_causal_delimiter_mask_with_batch(self):
@@ -63,17 +68,17 @@ class TestCharacterDelimitedAttentionMask(unittest.TestCase):
         expected = torch.tensor([
             [[1, 0, 0, 0, 0, 0],
              [1, 1, 0, 0, 0, 0],
-             [0, 0, 1, 0, 0, 0],
-             [0, 0, 1, 1, 0, 0],
-             [0, 0, 1, 1, 1, 0],
-             [0, 0, 0, 0, 0, 1]],
+             [0, 1, 1, 0, 0, 0],
+             [0, 1, 1, 1, 0, 0],
+             [0, 1, 1, 1, 1, 0],
+             [0, 0, 0, 0, 1, 1]],
             
             [[1, 0, 0, 0, 0, 0],
              [1, 1, 0, 0, 0, 0],
              [1, 1, 1, 0, 0, 0],
-             [0, 0, 0, 1, 0, 0],
-             [0, 0, 0, 1, 1, 0],
-             [0, 0, 0, 0, 0, 1]]
+             [0, 0, 1, 1, 0, 0],
+             [0, 0, 1, 1, 1, 0],
+             [0, 0, 0, 0, 1, 1]]
         ], dtype=torch.bool)
         
         self.assertTrue(torch.all(mask == expected))

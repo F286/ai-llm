@@ -31,7 +31,16 @@ class CharacterDelimitedAttentionMask:
         return torch.cumsum(shifted_delimiter_tensor, dim=1)
 
     def _create_region_mask(self, region_tensor: torch.Tensor) -> torch.Tensor:
-        return region_tensor.unsqueeze(1) == region_tensor.unsqueeze(2)
+        # original mask
+        mask = region_tensor.unsqueeze(1) == region_tensor.unsqueeze(2)
+        
+        # shifted mask, just values in rows shifted to the left by one
+        shifted_mask = mask.clone()
+        shifted_mask[:, :, :-1] = mask[:, :, 1:]
+
+        # combine masks
+        combined_mask = mask | shifted_mask
+        return combined_mask
 
     def _create_causal_mask(self, seq_len: int, device: torch.device) -> torch.Tensor:
         return torch.tril(torch.ones(seq_len, seq_len, dtype=torch.bool, device=device))
