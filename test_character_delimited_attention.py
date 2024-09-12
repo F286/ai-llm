@@ -64,5 +64,51 @@ class TestCharacterDelimitedAttentionStepByStep(unittest.TestCase):
 
         print("\nOutput matches expected values!")
 
+class TestCharacterDelimitedAttention(unittest.TestCase):
+    def setUp(self):
+        self.embed_dim = 768
+        self.num_heads = 12
+        self.model = CharacterDelimitedAttention(
+            embed_dim=self.embed_dim, 
+            num_heads=self.num_heads, 
+            delimiter_chars=[' ', '.', '?', '!', '\n']
+        )
+        
+        self.batch_size = 64
+        self.seq_length = 256
+        self.vocab_size = 65
+
+        self.char_ids = torch.randint(0, self.vocab_size, (self.batch_size, self.seq_length))
+
+    def test_forward_pass(self):
+        # Create input tensor
+        x = torch.randn(self.batch_size, self.seq_length, self.embed_dim)
+        
+        # Create character IDs tensor
+        char_ids = torch.randint(0, self.vocab_size, (self.batch_size, self.seq_length))
+
+        try:
+            # Run forward pass
+            output = self.model(x, char_ids)
+
+            # Print shapes for debugging
+            print(f"\nInput shape: {x.shape}")
+            print(f"Character IDs shape: {char_ids.shape}")
+            print(f"Output shape: {output.shape}")
+
+            # Check if output shape matches input shape
+            self.assertEqual(output.shape, x.shape)
+
+            # Check if output is not all zeros or NaNs
+            self.assertFalse(torch.all(output == 0))
+            self.assertFalse(torch.isnan(output).any())
+
+            print("Forward pass successful!")
+
+        except Exception as e:
+            print(f"Forward pass failed with error: {str(e)}")
+            raise
+
+
 if __name__ == '__main__':
     unittest.main()

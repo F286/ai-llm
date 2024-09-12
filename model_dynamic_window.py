@@ -18,6 +18,10 @@ from torch.nn import functional as F
 import tiktoken
 from local_attention import LocalAttention
 from character_delimited_attention import CharacterDelimitedAttention
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class SentenceEndProcessor:
     def __init__(self, vocab_size, sentence_end_tokens):
@@ -43,6 +47,11 @@ class CharacterDelimitedSelfAttention(nn.Module):
     def __init__(self, config, delimiter_chars):
         super().__init__()
         assert config.n_embd % config.n_head == 0
+
+        # Verify delimiter_chars is not empty and contains characters
+        if not delimiter_chars or not any(delimiter_chars):
+            raise ValueError("delimiter_chars must be provided and contain characters")
+
         self.n_head = config.n_head
         self.n_embd = config.n_embd
         self.dropout = config.dropout
@@ -56,6 +65,10 @@ class CharacterDelimitedSelfAttention(nn.Module):
         self.resid_dropout = nn.Dropout(config.dropout)
 
     def forward(self, x, char_ids):
+        # Early return if tensor 'x' has any empty dimensions
+        if x.numel() == 0:
+            return x
+
         y = self.char_delimited_attn(x, char_ids)
         y = self.resid_dropout(y)
         return y
@@ -166,6 +179,11 @@ class Block(nn.Module):
         self.delimit_tokens = delimit_tokens
 
     def forward(self, x, char_ids=None):
+
+        # Ensure if delimit_tokens exists, char_ids is provided
+        if self.delimit_tokens and char_ids is None:
+            raise ValueError("char_ids must be provided if delimit_tokens is provided")
+
         if self.delimit_tokens:
             x = x + self.attn(self.ln_1(x), char_ids)
         else:
@@ -183,7 +201,6 @@ class GPTConfig:
     dropout: float = 0.0
     bias: bool = False # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
     sentence_end_tokens: List[str] = field(default_factory=lambda: ['.', '?', '!', '\n'])
-    space_tokens: List[str] = field(default_factory=lambda: [' '])
 
 class GPT(nn.Module):
 
@@ -192,7 +209,6 @@ class GPT(nn.Module):
         assert config.vocab_size is not None
         assert config.block_size is not None
         assert config.sentence_end_tokens is not None, "sentence_end_tokens must be provided in config"
-        assert config.space_tokens is not None, "space_tokens must be provided in config"
         self.config = config
 
         self.transformer = nn.ModuleDict(dict(
@@ -206,7 +222,6 @@ class GPT(nn.Module):
         self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
 
         self.sentence_end_processor = SentenceEndProcessor(config.vocab_size, config.sentence_end_tokens)
-        self.space_processor = SentenceEndProcessor(config.vocab_size, config.space_tokens)
 
         # init all weights
         self.apply(self._init_weights)
@@ -239,12 +254,10 @@ class GPT(nn.Module):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
     def _get_delimit_tokens(self, layer_index):
-        if layer_index in [1, self.config.n_layer - 2]:
-            return self.config.space_tokens
-        elif 1 < layer_index < self.config.n_layer - 2:
-            return self.config.sentence_end_tokens
+        if 1 < layer_index < self.config.n_layer - 2:
+            return None # middle layers use sentence end processor instead of delimited attention (dynamic window attention)
         else:
-            return None
+            return self.config.sentence_end_tokens
 
     def forward(self, idx, targets=None):
         device = idx.device
@@ -252,19 +265,29 @@ class GPT(nn.Module):
         assert t <= self.config.block_size, f"Cannot forward sequence of length {t}, block size is only {self.config.block_size}"
         pos = torch.arange(0, t, dtype=torch.long, device=device).unsqueeze(0) # shape (1, t)
 
+        # Log the size of idx and the embedding
+        logging.info(f"Input idx shape: {idx.shape}")
+        logging.info(f"Embedding weight shape: {self.transformer.wte.weight.shape}")
+
         # forward the GPT model itself
         tok_emb = self.transformer.wte(idx) # token embeddings of shape (b, t, n_embd)
         pos_emb = self.transformer.wpe(pos) # position embeddings of shape (1, t, n_embd)
         x = self.transformer.drop(tok_emb + pos_emb)
+
+        # Log the shape of x after embedding
+        logging.info(f"Shape after embedding: {x.shape}")
+
         for i, block in enumerate(self.transformer.h):
-            if block.delimit_tokens:
-                x = block(x, idx)
-                if i == 1 or i == self.config.n_layer - 2:
-                    x = self.space_processor.process_middle_layer(x, idx, block)
-                elif 1 < i < self.config.n_layer - 2:
-                    x = self.sentence_end_processor.process_middle_layer(x, idx, block)
+
+            if 1 < i < self.config.n_layer - 2:
+                assert block.delimit_tokens is None, "Sentence end processor is currently incompatitable with dynamic windowing"
+                x = self.sentence_end_processor.process_middle_layer(x, idx, block)
             else:
-                x = block(x)
+                x = block(x, idx)
+
+            # Log the shape of x after each block
+            logging.info(f"Shape after block {i}: {x.shape}")
+
         x = self.transformer.ln_f(x)
 
         if targets is not None:
