@@ -23,24 +23,24 @@ import logging
 # Set up logging
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class SentenceEndProcessor:
-    def __init__(self, vocab_size, sentence_end_tokens):
-        assert sentence_end_tokens is not None, "sentence_end_tokens must be provided"
+class TokenMaskProcessor:
+    def __init__(self, vocab_size, mask_tokens):
+        assert mask_tokens is not None, "mask_tokens must be provided"
         self.vocab_size = vocab_size
-        self.sentence_end_tokens = sentence_end_tokens
+        self.mask_tokens = mask_tokens
         self.tokenizer = tiktoken.get_encoding("gpt2")
-        self.sentence_end_ids = self.get_sentence_end_ids()
+        self.mask_token_ids = self.get_mask_token_ids()
 
-    def get_sentence_end_ids(self):
-        return [self.tokenizer.encode(token)[0] for token in self.sentence_end_tokens]
+    def get_mask_token_ids(self):
+        return [self.tokenizer.encode(token)[0] for token in self.mask_tokens]
 
-    def create_sentence_end_mask(self, idx):
-        return torch.isin(idx, torch.tensor(self.sentence_end_ids, device=idx.device))
+    def create_token_mask(self, idx):
+        return torch.isin(idx, torch.tensor(self.mask_token_ids, device=idx.device))
 
-    def process_middle_layer(self, x, idx, block):
-        mask = self.create_sentence_end_mask(idx)
-        x_sentence_end = block(x[mask].unsqueeze(0))
-        x[mask] = x_sentence_end.squeeze(0)
+    def process_masked_tokens(self, x, idx, block):
+        mask = self.create_token_mask(idx)
+        x_masked = block(x[mask].unsqueeze(0))
+        x[mask] = x_masked.squeeze(0)
         return x
 
 class CharacterDelimitedSelfAttention(nn.Module):
@@ -200,7 +200,7 @@ class GPTConfig:
     n_embd: int = 768
     dropout: float = 0.0
     bias: bool = False # True: bias in Linears and LayerNorms, like GPT-2. False: a bit better and faster
-    sentence_end_tokens: List[str] = field(default_factory=lambda: ['.', '?', '!', '\n'])
+    mask_tokens: List[str] = field(default_factory=lambda: ['.', '?', '!', '\n'])
 
 class GPT(nn.Module):
 
@@ -208,7 +208,7 @@ class GPT(nn.Module):
         super().__init__()
         assert config.vocab_size is not None
         assert config.block_size is not None
-        assert config.sentence_end_tokens is not None, "sentence_end_tokens must be provided in config"
+        assert config.mask_tokens is not None, "mask_tokens must be provided in config"
         self.config = config
 
         self.transformer = nn.ModuleDict(dict(
@@ -221,7 +221,7 @@ class GPT(nn.Module):
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
         self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
 
-        self.sentence_end_processor = SentenceEndProcessor(config.vocab_size, config.sentence_end_tokens)
+        self.token_mask_processor = TokenMaskProcessor(config.vocab_size, config.mask_tokens)
 
         # init all weights
         self.apply(self._init_weights)
@@ -255,9 +255,9 @@ class GPT(nn.Module):
 
     def _get_delimit_tokens(self, layer_index):
         if 1 < layer_index < self.config.n_layer - 2:
-            return None # middle layers use sentence end processor instead of delimited attention (dynamic window attention)
+            return None # middle layers use token mask processor instead of delimited attention (dynamic window attention)
         else:
-            return self.config.sentence_end_tokens
+            return self.config.mask_tokens
 
     def forward(self, idx, targets=None):
         device = idx.device
@@ -280,8 +280,8 @@ class GPT(nn.Module):
         for i, block in enumerate(self.transformer.h):
 
             if 1 < i < self.config.n_layer - 2:
-                assert block.delimit_tokens is None, "Sentence end processor is currently incompatitable with dynamic windowing"
-                x = self.sentence_end_processor.process_middle_layer(x, idx, block)
+                assert block.delimit_tokens is None, "Token mask processor is currently incompatible with dynamic windowing"
+                x = self.token_mask_processor.process_masked_tokens(x, idx, block)
             else:
                 x = block(x, idx)
 
