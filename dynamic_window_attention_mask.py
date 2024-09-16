@@ -1,7 +1,7 @@
 import torch
 from typing import List
 
-class CharacterDelimitedAttentionMask:
+class DynamicWindowAttentionMask:
     def __init__(self, delimiter_chars: List[str]):
         self.delimiter_chars = delimiter_chars
 

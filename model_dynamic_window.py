@@ -17,7 +17,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 import tiktoken
 from local_attention import LocalAttention
-from character_delimited_attention import CharacterDelimitedAttention
+from dynamic_window_attention import DynamicWindowAttention
 import logging
 
 # Set up logging
@@ -43,7 +43,7 @@ class TokenMaskProcessor:
         x[mask] = x_masked.squeeze(0)
         return x
 
-class CharacterDelimitedSelfAttention(nn.Module):
+class DynamicWindowSelfAttention(nn.Module):
     def __init__(self, config, delimiter_chars):
         super().__init__()
         assert config.n_embd % config.n_head == 0
@@ -56,7 +56,7 @@ class CharacterDelimitedSelfAttention(nn.Module):
         self.n_embd = config.n_embd
         self.dropout = config.dropout
 
-        self.char_delimited_attn = CharacterDelimitedAttention(
+        self.dynamic_window_attn = DynamicWindowAttention(
             embed_dim=config.n_embd,
             num_heads=config.n_head,
             delimiter_chars=delimiter_chars,
@@ -69,7 +69,7 @@ class CharacterDelimitedSelfAttention(nn.Module):
         if x.numel() == 0:
             return x
 
-        y = self.char_delimited_attn(x, char_ids)
+        y = self.dynamic_window_attn(x, char_ids)
         y = self.resid_dropout(y)
         return y
 
@@ -171,7 +171,7 @@ class Block(nn.Module):
         super().__init__()
         self.ln_1 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)
         if delimit_tokens:
-            self.attn = CharacterDelimitedSelfAttention(config, delimiter_chars=delimit_tokens)
+            self.attn = DynamicWindowSelfAttention(config, delimiter_chars=delimit_tokens)
         else:
             self.attn = CausalSelfAttention(config)
         self.ln_2 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)

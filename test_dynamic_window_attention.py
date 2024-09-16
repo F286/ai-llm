@@ -1,13 +1,13 @@
 import torch
 import torch.nn as nn
 import unittest
-from character_delimited_attention import CharacterDelimitedAttention
+from dynamic_window_attention import DynamicWindowAttention
 
-class TestCharacterDelimitedAttentionStepByStep(unittest.TestCase):
+class TestDynamicWindowAttentionStepByStep(unittest.TestCase):
     def setUp(self):
         self.embed_dim = 8
         self.num_heads = 2
-        self.model = CharacterDelimitedAttention(
+        self.model = DynamicWindowAttention(
             embed_dim=self.embed_dim, 
             num_heads=self.num_heads, 
             delimiter_chars=[',', '.'], 
@@ -64,11 +64,11 @@ class TestCharacterDelimitedAttentionStepByStep(unittest.TestCase):
 
         print("\nOutput matches expected values!")
 
-class TestCharacterDelimitedAttention(unittest.TestCase):
+class TestDynamicWindowAttention(unittest.TestCase):
     def setUp(self):
         self.embed_dim = 768
         self.num_heads = 12
-        self.model = CharacterDelimitedAttention(
+        self.model = DynamicWindowAttention(
             embed_dim=self.embed_dim, 
             num_heads=self.num_heads, 
             delimiter_chars=[' ', '.', '?', '!', '\n']

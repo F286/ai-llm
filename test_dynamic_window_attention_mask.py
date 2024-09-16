@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
 import unittest
-from character_delimited_attention_mask import CharacterDelimitedAttentionMask
+from dynamic_window_attention_mask import DynamicWindowAttentionMask
 
-class TestCharacterDelimitedAttentionMask(unittest.TestCase):
+class TestDynamicWindowAttentionMask(unittest.TestCase):
     def setUp(self):
-        self.attention_mask = CharacterDelimitedAttentionMask(delimiter_chars=[',', '.'])
+        self.attention_mask = DynamicWindowAttentionMask(delimiter_chars=[',', '.'])
         self.char_ids = torch.tensor([[ord('a'), ord(','), ord('b'), ord('c'), ord('.'), ord('d')]])
 
     def test_create_delimiter_tensor(self):
