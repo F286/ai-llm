@@ -19,24 +19,24 @@ import tiktoken
 from local_attention import LocalAttention
 from non_zero_row_processor import NonZeroRowProcessor
 
-class SentenceEndProcessor:
-    def __init__(self, vocab_size, sentence_end_tokens):
-        assert sentence_end_tokens is not None, "sentence_end_tokens must be provided"
+class TokenMaskProcessor:
+    def __init__(self, vocab_size, tokens):
+        assert tokens is not None, "tokens must be provided"
         self.vocab_size = vocab_size
-        self.sentence_end_tokens = sentence_end_tokens
+        self.tokens = tokens
         self.tokenizer = tiktoken.get_encoding("gpt2")
-        self.sentence_end_ids = self.get_sentence_end_ids()
+        self.token_ids = self.get_token_ids()
 
-    def get_sentence_end_ids(self):
-        return [self.tokenizer.encode(token)[0] for token in self.sentence_end_tokens]
+    def get_token_ids(self):
+        return [self.tokenizer.encode(token)[0] for token in self.tokens]
 
-    def create_sentence_end_mask(self, idx):
-        return torch.isin(idx, torch.tensor(self.sentence_end_ids, device=idx.device))
+    def create_token_mask(self, idx):
+        return torch.isin(idx, torch.tensor(self.token_ids, device=idx.device))
 
     def process_middle_layer(self, x, idx, block):
-        mask = self.create_sentence_end_mask(idx)
-        x_sentence_end = block(x[mask].unsqueeze(0))
-        x[mask] = x_sentence_end.squeeze(0)
+        mask = self.create_token_mask(idx)
+        x_masked = block(x[mask].unsqueeze(0))
+        x[mask] = x_masked.squeeze(0)
         return x
 
 class CausalSelfAttention(nn.Module):
@@ -180,8 +180,8 @@ class GPT(nn.Module):
         # not 100% sure what this is, so far seems to be harmless. TODO investigate
         self.transformer.wte.weight = self.lm_head.weight # https://paperswithcode.com/method/weight-tying
 
-        self.sentence_end_processor = SentenceEndProcessor(config.vocab_size, config.sentence_end_tokens)
-        self.space_processor = SentenceEndProcessor(config.vocab_size, [" "])  # Space token
+        self.token_mask_processor = TokenMaskProcessor(config.vocab_size, config.sentence_end_tokens)
+        self.space_processor = TokenMaskProcessor(config.vocab_size, [" "])  # Space token
 
         # init all weights
         self.apply(self._init_weights)
@@ -232,7 +232,7 @@ class GPT(nn.Module):
             elif i in [1, len(self.transformer.h) - 2]:  # 2nd, and 2nd from last layers
                 x = self.space_processor.process_middle_layer(x, idx, block)
             else:  # Other middle layers
-                x = self.sentence_end_processor.process_middle_layer(x, idx, block)
+                x = self.token_mask_processor.process_middle_layer(x, idx, block)
         x = self.transformer.ln_f(x)
 
         if targets is not None:
