@@ -34,14 +34,32 @@ class TokenMaskProcessor:
     def get_mask_token_ids(self):
         return [self.tokenizer.encode(token)[0] for token in self.mask_tokens]
 
-    def create_token_mask(self, idx):
-        return torch.isin(idx, torch.tensor(self.mask_token_ids, device=idx.device))
+    def create_token_mask(self, idx, include_mask_tokens=True):
+        mask = torch.isin(idx, torch.tensor(self.mask_token_ids, device=idx.device))
+        if not include_mask_tokens:
+            mask = ~mask
+        return mask
 
-    def process_masked_tokens(self, x, idx, block):
-        mask = self.create_token_mask(idx)
-        x_masked = block(x[mask].unsqueeze(0))
-        x[mask] = x_masked.squeeze(0)
+    def process_masked_tokens(self, x, idx, block, include_mask_tokens=True):
+        B, T, C = x.size()
+        x_flat = x.view(B*T, C)
+        idx_flat = idx.view(B*T)
+        mask_flat = self.create_token_mask(idx_flat, include_mask_tokens=include_mask_tokens)
+        if mask_flat.sum() == 0:
+            return x  # Nothing to process
+
+        # Extract masked tokens
+        x_masked = x_flat[mask_flat].unsqueeze(0)  # Shape: (1, num_masked_tokens, C)
+        char_ids_masked = idx_flat[mask_flat].unsqueeze(0)  # Shape: (1, num_masked_tokens)
+
+        # Pass both x and masked char_ids to the block
+        x_masked = block(x_masked, char_ids=char_ids_masked)
+
+        # Replace the masked tokens in the original tensor
+        x_flat[mask_flat] = x_masked.squeeze(0)
+        x = x_flat.view(B, T, C)
         return x
+
 
 class DynamicWindowSelfAttention(nn.Module):
     def __init__(self, config, delimiter_chars):
@@ -167,25 +185,24 @@ class MLP(nn.Module):
         return x
 
 class Block(nn.Module):
-    def __init__(self, config, delimit_tokens=None):
+    def __init__(self, config, attention_type='causal', delimiter_chars=None):
         super().__init__()
         self.ln_1 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)
-        if delimit_tokens:
-            self.attn = DynamicWindowSelfAttention(config, delimiter_chars=delimit_tokens)
-        else:
+        if attention_type == 'dynamic_window':
+            assert delimiter_chars is not None, "delimiter_chars must be provided for dynamic_window attention"
+            self.attn = DynamicWindowSelfAttention(config, delimiter_chars=delimiter_chars)
+        elif attention_type == 'causal':
             self.attn = CausalSelfAttention(config)
+        else:
+            raise ValueError(f"Unknown attention_type: {attention_type}")
         self.ln_2 = nn.LayerNorm(config.n_embd, elementwise_affine=config.bias)
         self.mlp = MLP(config)
-        self.delimit_tokens = delimit_tokens
+        self.attention_type = attention_type
 
     def forward(self, x, char_ids=None):
-
-        # Ensure if delimit_tokens exists, char_ids is provided
-        if self.delimit_tokens and char_ids is None:
-            raise ValueError("char_ids must be provided if delimit_tokens is provided")
-
-        if self.delimit_tokens:
-            x = x + self.attn(self.ln_1(x), char_ids)
+        if self.attention_type == 'dynamic_window':
+            assert char_ids is not None, "char_ids must be provided for dynamic window attention"
+            x = x + self.attn(self.ln_1(x), char_ids=char_ids)
         else:
             x = x + self.attn(self.ln_1(x))
         x = x + self.mlp(self.ln_2(x))
@@ -215,7 +232,7 @@ class GPT(nn.Module):
             wte = nn.Embedding(config.vocab_size, config.n_embd),
             wpe = nn.Embedding(config.block_size, config.n_embd),
             drop = nn.Dropout(config.dropout),
-            h = nn.ModuleList([Block(config, delimit_tokens=self._get_delimit_tokens(i)) for i in range(config.n_layer)]),
+            h = nn.ModuleList([self._get_block(i) for i in range(config.n_layer)]),
             ln_f = nn.LayerNorm(config.n_embd, bias=config.bias),
         ))
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
@@ -232,6 +249,26 @@ class GPT(nn.Module):
 
         # report number of parameters
         print("number of parameters: %.2fM" % (self.get_num_params()/1e6,))
+
+    def _get_block(self, layer_index):
+        if layer_index in [0, 1]:  # Layers 1 and 2
+            attention_type = 'dynamic_window'
+            delimiters = [' ', '.', '?', '!', '\n']
+            return Block(self.config, attention_type=attention_type, delimiter_chars=delimiters)
+        elif layer_index in [2, 3]:  # Layers 3 and 4
+            attention_type = 'dynamic_window'
+            delimiters = ['.', '?', '!', '\n']
+            return Block(self.config, attention_type=attention_type, delimiter_chars=delimiters)
+        elif 4 <= layer_index <= 10:  # Layers 5 to 11
+            attention_type = 'causal'
+            return Block(self.config, attention_type=attention_type)
+        elif layer_index == 11:  # Layer 12
+            attention_type = 'dynamic_window'
+            delimiters = ['.', '?', '!', '\n']
+            return Block(self.config, attention_type=attention_type, delimiter_chars=delimiters)
+        else:
+            attention_type = 'causal'
+            return Block(self.config, attention_type=attention_type)
 
     def get_num_params(self, non_embedding=True):
         """
@@ -253,12 +290,6 @@ class GPT(nn.Module):
         elif isinstance(module, nn.Embedding):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
 
-    def _get_delimit_tokens(self, layer_index):
-        if 1 < layer_index < self.config.n_layer - 2:
-            return None # middle layers use token mask processor instead of delimited attention (dynamic window attention)
-        else:
-            return self.config.mask_tokens
-
     def forward(self, idx, targets=None):
         device = idx.device
         b, t = idx.size()
@@ -278,12 +309,18 @@ class GPT(nn.Module):
         logging.info(f"Shape after embedding: {x.shape}")
 
         for i, block in enumerate(self.transformer.h):
-
-            if 1 < i < self.config.n_layer - 2:
-                assert block.delimit_tokens is None, "Token mask processor is currently incompatible with dynamic windowing"
-                x = self.token_mask_processor.process_masked_tokens(x, idx, block)
+            if i in [0, 1]:  # Layers 1 and 2: Within a word
+                x = block(x, char_ids=idx)
+            elif i in [2, 3]:  # Layers 3 and 4: Within a sentence
+                # Layers 3 and 4 use dynamic window attention with sentence delimiters
+                x = self.token_mask_processor.process_masked_tokens(x, idx, block, include_mask_tokens=True)
+            elif 4 <= i <= 10:  # Layers 5 to 11: Only end-of-sentence tokens
+                # Layers 5 to 11 use causal attention on end-of-sentence tokens
+                x = self.token_mask_processor.process_masked_tokens(x, idx, block, include_mask_tokens=True)
+            elif i == 11:  # Layer 12: Per character within a sentence
+                x = block(x, char_ids=idx)
             else:
-                x = block(x, idx)
+                x = block(x, char_ids=idx)
 
             # Log the shape of x after each block
             logging.info(f"Shape after block {i}: {x.shape}")
