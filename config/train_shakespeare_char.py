@@ -19,9 +19,14 @@ batch_size = 64
 block_size = 256 # context of up to 256 previous characters
 
 # baby GPT model :)
-n_layer = 6
-n_head = 6
-n_embd = 384
+# n_layer = 6
+# n_head = 6
+# n_embd = 384
+# dropout = 0.2
+
+n_layer = 2
+n_head = 2
+n_embd = 32
 dropout = 0.2
 
 learning_rate = 1e-3 # with baby networks can afford to go a bit higher
@@ -33,5 +38,7 @@ beta2 = 0.99 # make a bit bigger because number of tokens per iter is small
 warmup_iters = 100 # not super necessary potentially
 
 # on macbook also add
-# device = 'cpu'  # run on cpu only
+device = 'cpu'  # run on cpu only
 compile = False # do not torch compile the model
+
+# python train_ff.py config/train_shakespeare_char.py

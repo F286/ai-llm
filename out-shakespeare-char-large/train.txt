@@ -1,0 +1,919 @@
+iter 593040: loss 0.0543, time 281.38ms, mfu 8.71%
+iter 593050: loss 0.0576, time 290.85ms, mfu 8.76%
+iter 593060: loss 0.0549, time 282.37ms, mfu 8.83%
+iter 593070: loss 0.0551, time 282.62ms, mfu 8.89%
+iter 593080: loss 0.0579, time 303.39ms, mfu 8.89%
+iter 593090: loss 0.0570, time 294.29ms, mfu 8.91%
+iter 593100: loss 0.0581, time 280.94ms, mfu 8.97%
+iter 593110: loss 0.0545, time 291.84ms, mfu 8.99%
+iter 593120: loss 0.0559, time 272.52ms, mfu 9.07%
+iter 593130: loss 0.0530, time 280.72ms, mfu 9.12%
+iter 593140: loss 0.0551, time 291.82ms, mfu 9.13%
+iter 593150: loss 0.0538, time 290.25ms, mfu 9.14%
+iter 593160: loss 0.0585, time 280.73ms, mfu 9.18%
+iter 593170: loss 0.0589, time 281.32ms, mfu 9.21%
+iter 593180: loss 0.0558, time 289.54ms, mfu 9.21%
+iter 593190: loss 0.0566, time 282.05ms, mfu 9.24%
+iter 593200: loss 0.0549, time 293.18ms, mfu 9.23%
+iter 593210: loss 0.0566, time 282.42ms, mfu 9.26%
+iter 593220: loss 0.0573, time 290.76ms, mfu 9.25%
+iter 593230: loss 0.0571, time 272.04ms, mfu 9.31%
+iter 593240: loss 0.0589, time 281.43ms, mfu 9.33%
+step 593250: train loss 0.0559, val loss 5.4402
+iter 593250: loss 0.0565, time 41761.10ms, mfu 8.40%
+iter 593260: loss 0.0565, time 270.81ms, mfu 8.55%
+iter 593270: loss 0.0566, time 291.94ms, mfu 8.61%
+iter 593280: loss 0.0547, time 291.17ms, mfu 8.67%
+iter 593290: loss 0.0552, time 284.66ms, mfu 8.75%
+iter 593300: loss 0.0583, time 283.47ms, mfu 8.82%
+iter 593310: loss 0.0538, time 282.14ms, mfu 8.88%
+iter 593320: loss 0.0571, time 282.18ms, mfu 8.94%
+iter 593330: loss 0.0541, time 280.10ms, mfu 9.01%
+iter 593340: loss 0.0570, time 291.33ms, mfu 9.02%
+iter 593350: loss 0.0575, time 285.86ms, mfu 9.06%
+iter 593360: loss 0.0565, time 292.16ms, mfu 9.07%
+iter 593370: loss 0.0561, time 280.71ms, mfu 9.12%
+iter 593380: loss 0.0597, time 287.32ms, mfu 9.14%
+iter 593390: loss 0.0537, time 280.17ms, mfu 9.18%
+iter 593400: loss 0.0579, time 281.92ms, mfu 9.21%
+iter 593410: loss 0.0571, time 282.78ms, mfu 9.24%
+iter 593420: loss 0.0577, time 280.43ms, mfu 9.27%
+iter 593430: loss 0.0556, time 278.93ms, mfu 9.30%
+iter 593440: loss 0.0603, time 289.44ms, mfu 9.30%
+iter 593450: loss 0.0550, time 291.65ms, mfu 9.28%
+iter 593460: loss 0.0542, time 281.93ms, mfu 9.31%
+iter 593470: loss 0.0543, time 281.46ms, mfu 9.33%
+iter 593480: loss 0.0557, time 283.69ms, mfu 9.34%
+iter 593490: loss 0.0568, time 280.03ms, mfu 9.36%
+step 593500: train loss 0.0560, val loss 5.4723
+iter 593500: loss 0.0557, time 41720.18ms, mfu 8.43%
+iter 593510: loss 0.0546, time 284.07ms, mfu 8.53%
+iter 593520: loss 0.0566, time 291.39ms, mfu 8.60%
+iter 593530: loss 0.0568, time 291.74ms, mfu 8.65%
+iter 593540: loss 0.0566, time 280.84ms, mfu 8.74%
+iter 593550: loss 0.0553, time 282.32ms, mfu 8.82%
+iter 593560: loss 0.0552, time 284.17ms, mfu 8.88%
+iter 593570: loss 0.0572, time 280.41ms, mfu 8.94%
+iter 593580: loss 0.0564, time 282.41ms, mfu 9.00%
+iter 593590: loss 0.0549, time 281.74ms, mfu 9.05%
+iter 593600: loss 0.0544, time 301.03ms, mfu 9.03%
+iter 593610: loss 0.0544, time 283.87ms, mfu 9.07%
+iter 593620: loss 0.0554, time 280.80ms, mfu 9.12%
+iter 593630: loss 0.0561, time 291.06ms, mfu 9.13%
+iter 593640: loss 0.0572, time 275.36ms, mfu 9.19%
+iter 593650: loss 0.0580, time 281.01ms, mfu 9.22%
+iter 593660: loss 0.0584, time 284.02ms, mfu 9.24%
+iter 593670: loss 0.0541, time 273.17ms, mfu 9.30%
+iter 593680: loss 0.0540, time 277.35ms, mfu 9.33%
+iter 593690: loss 0.0545, time 278.10ms, mfu 9.36%
+iter 593700: loss 0.0554, time 293.97ms, mfu 9.34%
+iter 593710: loss 0.0574, time 275.67ms, mfu 9.38%
+iter 593720: loss 0.0595, time 293.66ms, mfu 9.35%
+iter 593730: loss 0.0568, time 287.54ms, mfu 9.35%
+iter 593740: loss 0.0564, time 271.00ms, mfu 9.40%
+step 593750: train loss 0.0562, val loss 5.4615
+iter 593750: loss 0.0546, time 41752.32ms, mfu 8.47%
+iter 593760: loss 0.0580, time 281.56ms, mfu 8.57%
+iter 593770: loss 0.0550, time 290.49ms, mfu 8.64%
+iter 593780: loss 0.0588, time 281.28ms, mfu 8.72%
+iter 593790: loss 0.0563, time 284.71ms, mfu 8.79%
+iter 593800: loss 0.0560, time 291.16ms, mfu 8.83%
+iter 593810: loss 0.0555, time 272.41ms, mfu 8.93%
+iter 593820: loss 0.0560, time 287.15ms, mfu 8.97%
+iter 593830: loss 0.0559, time 281.02ms, mfu 9.03%
+iter 593840: loss 0.0592, time 294.00ms, mfu 9.03%
+iter 593850: loss 0.0545, time 282.32ms, mfu 9.08%
+iter 593860: loss 0.0564, time 280.36ms, mfu 9.13%
+iter 593870: loss 0.0567, time 283.33ms, mfu 9.16%
+iter 593880: loss 0.0561, time 272.62ms, mfu 9.23%
+iter 593890: loss 0.0577, time 291.95ms, mfu 9.22%
+iter 593900: loss 0.0575, time 282.54ms, mfu 9.25%
+iter 593910: loss 0.0589, time 280.76ms, mfu 9.28%
+iter 593920: loss 0.0584, time 273.77ms, mfu 9.33%
+iter 593930: loss 0.0551, time 291.15ms, mfu 9.31%
+iter 593940: loss 0.0559, time 268.35ms, mfu 9.38%
+iter 593950: loss 0.0533, time 280.92ms, mfu 9.39%
+iter 593960: loss 0.0559, time 281.85ms, mfu 9.41%
+iter 593970: loss 0.0574, time 271.92ms, mfu 9.45%
+iter 593980: loss 0.0557, time 282.62ms, mfu 9.45%
+iter 593990: loss 0.0557, time 281.30ms, mfu 9.46%
+step 594000: train loss 0.0564, val loss 5.4570
+iter 594000: loss 0.0558, time 41821.29ms, mfu 8.52%
+iter 594010: loss 0.0548, time 285.06ms, mfu 8.61%
+iter 594020: loss 0.0552, time 280.55ms, mfu 8.70%
+iter 594030: loss 0.0542, time 281.51ms, mfu 8.78%
+iter 594040: loss 0.0547, time 294.60ms, mfu 8.81%
+iter 594050: loss 0.0560, time 290.63ms, mfu 8.85%
+iter 594060: loss 0.0550, time 281.76ms, mfu 8.92%
+iter 594070: loss 0.0528, time 281.18ms, mfu 8.98%
+iter 594080: loss 0.0570, time 285.19ms, mfu 9.02%
+iter 594090: loss 0.0571, time 279.75ms, mfu 9.07%
+iter 594100: loss 0.0582, time 280.71ms, mfu 9.12%
+iter 594110: loss 0.0555, time 282.73ms, mfu 9.16%
+iter 594120: loss 0.0570, time 281.61ms, mfu 9.19%
+iter 594130: loss 0.0540, time 281.94ms, mfu 9.22%
+iter 594140: loss 0.0546, time 291.26ms, mfu 9.22%
+iter 594150: loss 0.0588, time 281.25ms, mfu 9.25%
+iter 594160: loss 0.0599, time 291.57ms, mfu 9.24%
+iter 594170: loss 0.0555, time 282.28ms, mfu 9.27%
+iter 594180: loss 0.0571, time 282.60ms, mfu 9.29%
+iter 594190: loss 0.0556, time 300.86ms, mfu 9.25%
+iter 594200: loss 0.0573, time 270.66ms, mfu 9.31%
+iter 594210: loss 0.0538, time 280.34ms, mfu 9.34%
+iter 594220: loss 0.0566, time 281.98ms, mfu 9.35%
+iter 594230: loss 0.0572, time 291.43ms, mfu 9.34%
+iter 594240: loss 0.0548, time 290.89ms, mfu 9.32%
+step 594250: train loss 0.0562, val loss 5.4521
+iter 594250: loss 0.0564, time 41837.85ms, mfu 8.40%
+iter 594260: loss 0.0553, time 289.97ms, mfu 8.48%
+iter 594270: loss 0.0564, time 284.38ms, mfu 8.57%
+iter 594280: loss 0.0533, time 285.15ms, mfu 8.66%
+iter 594290: loss 0.0558, time 281.92ms, mfu 8.74%
+iter 594300: loss 0.0560, time 281.25ms, mfu 8.82%
+iter 594310: loss 0.0567, time 281.96ms, mfu 8.89%
+iter 594320: loss 0.0537, time 291.48ms, mfu 8.92%
+iter 594330: loss 0.0551, time 293.41ms, mfu 8.94%
+iter 594340: loss 0.0546, time 287.84ms, mfu 8.97%
+iter 594350: loss 0.0558, time 281.79ms, mfu 9.03%
+iter 594360: loss 0.0557, time 283.00ms, mfu 9.07%
+iter 594370: loss 0.0550, time 272.10ms, mfu 9.15%
+iter 594380: loss 0.0574, time 277.64ms, mfu 9.20%
+iter 594390: loss 0.0572, time 282.23ms, mfu 9.23%
+iter 594400: loss 0.0546, time 286.47ms, mfu 9.24%
+iter 594410: loss 0.0557, time 280.40ms, mfu 9.27%
+iter 594420: loss 0.0572, time 280.51ms, mfu 9.30%
+iter 594430: loss 0.0555, time 290.51ms, mfu 9.29%
+iter 594440: loss 0.0567, time 273.80ms, mfu 9.34%
+iter 594450: loss 0.0554, time 282.06ms, mfu 9.35%
+iter 594460: loss 0.0559, time 276.52ms, mfu 9.39%
+iter 594470: loss 0.0552, time 281.75ms, mfu 9.40%
+iter 594480: loss 0.0586, time 281.50ms, mfu 9.41%
+iter 594490: loss 0.0582, time 281.31ms, mfu 9.42%
+step 594500: train loss 0.0562, val loss 5.4583
+iter 594500: loss 0.0535, time 41748.33ms, mfu 8.48%
+iter 594510: loss 0.0549, time 276.56ms, mfu 8.60%
+iter 594520: loss 0.0550, time 300.38ms, mfu 8.64%
+iter 594530: loss 0.0538, time 291.08ms, mfu 8.69%
+iter 594540: loss 0.0579, time 289.21ms, mfu 8.75%
+iter 594550: loss 0.0530, time 290.92ms, mfu 8.79%
+iter 594560: loss 0.0553, time 296.39ms, mfu 8.82%
+iter 594570: loss 0.0573, time 276.15ms, mfu 8.91%
+iter 594580: loss 0.0575, time 279.61ms, mfu 8.97%
+iter 594590: loss 0.0540, time 280.15ms, mfu 9.03%
+iter 594600: loss 0.0599, time 277.44ms, mfu 9.09%
+iter 594610: loss 0.0560, time 291.11ms, mfu 9.10%
+iter 594620: loss 0.0573, time 287.62ms, mfu 9.12%
+iter 594630: loss 0.0581, time 281.17ms, mfu 9.16%
+iter 594640: loss 0.0563, time 280.56ms, mfu 9.20%
+iter 594650: loss 0.0576, time 280.95ms, mfu 9.24%
+iter 594660: loss 0.0551, time 282.46ms, mfu 9.26%
+iter 594670: loss 0.0555, time 290.01ms, mfu 9.26%
+iter 594680: loss 0.0544, time 291.97ms, mfu 9.25%
+iter 594690: loss 0.0560, time 280.65ms, mfu 9.28%
+iter 594700: loss 0.0550, time 288.08ms, mfu 9.28%
+iter 594710: loss 0.0554, time 281.01ms, mfu 9.30%
+iter 594720: loss 0.0545, time 282.14ms, mfu 9.32%
+iter 594730: loss 0.0574, time 291.74ms, mfu 9.31%
+iter 594740: loss 0.0573, time 290.83ms, mfu 9.30%
+step 594750: train loss 0.0561, val loss 5.4579
+iter 594750: loss 0.0550, time 41887.11ms, mfu 8.37%
+iter 594760: loss 0.0588, time 292.17ms, mfu 8.45%
+iter 594770: loss 0.0586, time 282.08ms, mfu 8.56%
+iter 594780: loss 0.0574, time 292.42ms, mfu 8.62%
+iter 594790: loss 0.0546, time 284.89ms, mfu 8.70%
+iter 594800: loss 0.0588, time 290.87ms, mfu 8.75%
+iter 594810: loss 0.0563, time 282.19ms, mfu 8.82%
+iter 594820: loss 0.0557, time 282.22ms, mfu 8.89%
+iter 594830: loss 0.0571, time 282.22ms, mfu 8.95%
+iter 594840: loss 0.0545, time 281.40ms, mfu 9.00%
+iter 594850: loss 0.0550, time 281.60ms, mfu 9.06%
+iter 594860: loss 0.0550, time 283.80ms, mfu 9.09%
+iter 594870: loss 0.0556, time 290.19ms, mfu 9.11%
+iter 594880: loss 0.0560, time 280.83ms, mfu 9.15%
+iter 594890: loss 0.0573, time 290.70ms, mfu 9.16%
+iter 594900: loss 0.0574, time 289.83ms, mfu 9.16%
+iter 594910: loss 0.0575, time 288.92ms, mfu 9.17%
+iter 594920: loss 0.0580, time 280.35ms, mfu 9.21%
+iter 594930: loss 0.0542, time 281.14ms, mfu 9.24%
+iter 594940: loss 0.0549, time 283.15ms, mfu 9.26%
+iter 594950: loss 0.0557, time 291.82ms, mfu 9.26%
+iter 594960: loss 0.0566, time 272.11ms, mfu 9.31%
+iter 594970: loss 0.0588, time 281.20ms, mfu 9.33%
+iter 594980: loss 0.0582, time 289.55ms, mfu 9.33%
+iter 594990: loss 0.0551, time 281.79ms, mfu 9.34%
+step 595000: train loss 0.0563, val loss 5.4977
+iter 595000: loss 0.0552, time 41958.84ms, mfu 8.42%
+iter 595010: loss 0.0582, time 292.71ms, mfu 8.49%
+iter 595020: loss 0.0542, time 281.84ms, mfu 8.59%
+iter 595030: loss 0.0574, time 291.87ms, mfu 8.65%
+iter 595040: loss 0.0555, time 284.42ms, mfu 8.73%
+iter 595050: loss 0.0573, time 290.89ms, mfu 8.77%
+iter 595060: loss 0.0571, time 282.98ms, mfu 8.84%
+iter 595070: loss 0.0564, time 280.61ms, mfu 8.91%
+iter 595080: loss 0.0584, time 290.64ms, mfu 8.94%
+iter 595090: loss 0.0540, time 277.94ms, mfu 9.01%
+iter 595100: loss 0.0596, time 291.18ms, mfu 9.03%
+iter 595110: loss 0.0565, time 280.36ms, mfu 9.08%
+iter 595120: loss 0.0549, time 291.41ms, mfu 9.09%
+iter 595130: loss 0.0568, time 260.43ms, mfu 9.21%
+iter 595140: loss 0.0569, time 285.29ms, mfu 9.23%
+iter 595150: loss 0.0536, time 281.93ms, mfu 9.26%
+iter 595160: loss 0.0550, time 282.88ms, mfu 9.28%
+iter 595170: loss 0.0597, time 291.08ms, mfu 9.27%
+iter 595180: loss 0.0564, time 290.90ms, mfu 9.26%
+iter 595190: loss 0.0560, time 280.47ms, mfu 9.29%
+iter 595200: loss 0.0596, time 281.51ms, mfu 9.31%
+iter 595210: loss 0.0569, time 281.22ms, mfu 9.33%
+iter 595220: loss 0.0577, time 290.28ms, mfu 9.32%
+iter 595230: loss 0.0568, time 282.22ms, mfu 9.34%
+iter 595240: loss 0.0583, time 290.33ms, mfu 9.33%
+step 595250: train loss 0.0560, val loss 5.4247
+iter 595250: loss 0.0585, time 41865.61ms, mfu 8.40%
+iter 595260: loss 0.0555, time 292.28ms, mfu 8.48%
+iter 595270: loss 0.0555, time 291.59ms, mfu 8.55%
+iter 595280: loss 0.0574, time 281.34ms, mfu 8.65%
+iter 595290: loss 0.0551, time 303.68ms, mfu 8.66%
+iter 595300: loss 0.0560, time 291.67ms, mfu 8.71%
+iter 595310: loss 0.0576, time 283.14ms, mfu 8.79%
+iter 595320: loss 0.0563, time 279.76ms, mfu 8.87%
+iter 595330: loss 0.0558, time 282.43ms, mfu 8.93%
+iter 595340: loss 0.0571, time 281.71ms, mfu 8.99%
+iter 595350: loss 0.0563, time 295.88ms, mfu 8.99%
+iter 595360: loss 0.0549, time 278.15ms, mfu 9.06%
+iter 595370: loss 0.0570, time 281.95ms, mfu 9.10%
+iter 595380: loss 0.0560, time 292.36ms, mfu 9.11%
+iter 595390: loss 0.0581, time 270.68ms, mfu 9.18%
+iter 595400: loss 0.0565, time 283.68ms, mfu 9.21%
+iter 595410: loss 0.0561, time 291.00ms, mfu 9.21%
+iter 595420: loss 0.0549, time 288.14ms, mfu 9.22%
+iter 595430: loss 0.0582, time 281.61ms, mfu 9.25%
+iter 595440: loss 0.0565, time 282.16ms, mfu 9.27%
+iter 595450: loss 0.0558, time 281.25ms, mfu 9.30%
+iter 595460: loss 0.0570, time 271.12ms, mfu 9.35%
+iter 595470: loss 0.0598, time 270.01ms, mfu 9.41%
+iter 595480: loss 0.0558, time 291.71ms, mfu 9.39%
+iter 595490: loss 0.0539, time 292.42ms, mfu 9.36%
+step 595500: train loss 0.0561, val loss 5.4118
+iter 595500: loss 0.0561, time 41793.15ms, mfu 8.43%
+iter 595510: loss 0.0543, time 282.10ms, mfu 8.54%
+iter 595520: loss 0.0551, time 282.39ms, mfu 8.63%
+iter 595530: loss 0.0576, time 291.25ms, mfu 8.69%
+iter 595540: loss 0.0564, time 282.08ms, mfu 8.77%
+iter 595550: loss 0.0554, time 290.39ms, mfu 8.82%
+iter 595560: loss 0.0584, time 292.88ms, mfu 8.85%
+iter 595570: loss 0.0553, time 284.30ms, mfu 8.91%
+iter 595580: loss 0.0550, time 271.05ms, mfu 9.00%
+iter 595590: loss 0.0549, time 282.65ms, mfu 9.05%
+iter 595600: loss 0.0546, time 272.27ms, mfu 9.13%
+iter 595610: loss 0.0556, time 283.27ms, mfu 9.16%
+iter 595620: loss 0.0572, time 279.83ms, mfu 9.20%
+iter 595630: loss 0.0573, time 289.30ms, mfu 9.21%
+iter 595640: loss 0.0568, time 281.77ms, mfu 9.24%
+iter 595650: loss 0.0543, time 282.32ms, mfu 9.26%
+iter 595660: loss 0.0586, time 296.01ms, mfu 9.24%
+iter 595670: loss 0.0555, time 280.18ms, mfu 9.27%
+iter 595680: loss 0.0532, time 270.49ms, mfu 9.33%
+iter 595690: loss 0.0572, time 293.91ms, mfu 9.31%
+iter 595700: loss 0.0564, time 282.24ms, mfu 9.33%
+iter 595710: loss 0.0583, time 291.78ms, mfu 9.31%
+iter 595720: loss 0.0591, time 290.48ms, mfu 9.30%
+iter 595730: loss 0.0568, time 274.48ms, mfu 9.35%
+iter 595740: loss 0.0558, time 282.45ms, mfu 9.36%
+step 595750: train loss 0.0563, val loss 5.4333
+iter 595750: loss 0.0555, time 41824.94ms, mfu 8.43%
+iter 595760: loss 0.0575, time 281.99ms, mfu 8.54%
+iter 595770: loss 0.0540, time 291.27ms, mfu 8.60%
+iter 595780: loss 0.0558, time 290.63ms, mfu 8.67%
+iter 595790: loss 0.0582, time 290.92ms, mfu 8.72%
+iter 595800: loss 0.0539, time 281.86ms, mfu 8.80%
+iter 595810: loss 0.0552, time 281.74ms, mfu 8.87%
+iter 595820: loss 0.0559, time 277.72ms, mfu 8.95%
+iter 595830: loss 0.0565, time 281.73ms, mfu 9.00%
+iter 595840: loss 0.0550, time 301.67ms, mfu 8.99%
+iter 595850: loss 0.0572, time 289.52ms, mfu 9.01%
+iter 595860: loss 0.0574, time 281.04ms, mfu 9.07%
+iter 595870: loss 0.0570, time 272.80ms, mfu 9.14%
+iter 595880: loss 0.0549, time 292.25ms, mfu 9.14%
+iter 595890: loss 0.0564, time 300.32ms, mfu 9.12%
+iter 595900: loss 0.0572, time 279.08ms, mfu 9.17%
+iter 595910: loss 0.0552, time 281.10ms, mfu 9.20%
+iter 595920: loss 0.0574, time 282.32ms, mfu 9.23%
+iter 595930: loss 0.0564, time 282.18ms, mfu 9.26%
+iter 595940: loss 0.0583, time 293.38ms, mfu 9.24%
+iter 595950: loss 0.0561, time 289.76ms, mfu 9.24%
+iter 595960: loss 0.0574, time 280.70ms, mfu 9.27%
+iter 595970: loss 0.0575, time 287.67ms, mfu 9.28%
+iter 595980: loss 0.0589, time 292.25ms, mfu 9.27%
+iter 595990: loss 0.0585, time 285.14ms, mfu 9.28%
+step 596000: train loss 0.0563, val loss 5.4593
+iter 596000: loss 0.0550, time 41990.59ms, mfu 8.36%
+iter 596010: loss 0.0558, time 290.26ms, mfu 8.44%
+iter 596020: loss 0.0579, time 281.42ms, mfu 8.55%
+iter 596030: loss 0.0554, time 292.34ms, mfu 8.61%
+iter 596040: loss 0.0547, time 279.56ms, mfu 8.71%
+iter 596050: loss 0.0595, time 280.49ms, mfu 8.79%
+iter 596060: loss 0.0572, time 283.77ms, mfu 8.86%
+iter 596070: loss 0.0551, time 280.49ms, mfu 8.93%
+iter 596080: loss 0.0583, time 280.86ms, mfu 8.99%
+iter 596090: loss 0.0554, time 280.63ms, mfu 9.04%
+iter 596100: loss 0.0577, time 291.45ms, mfu 9.06%
+iter 596110: loss 0.0573, time 280.91ms, mfu 9.10%
+iter 596120: loss 0.0572, time 291.27ms, mfu 9.11%
+iter 596130: loss 0.0552, time 272.79ms, mfu 9.18%
+iter 596140: loss 0.0561, time 281.94ms, mfu 9.21%
+iter 596150: loss 0.0564, time 281.07ms, mfu 9.25%
+iter 596160: loss 0.0570, time 280.35ms, mfu 9.28%
+iter 596170: loss 0.0552, time 289.92ms, mfu 9.27%
+iter 596180: loss 0.0560, time 269.66ms, mfu 9.34%
+iter 596190: loss 0.0583, time 272.24ms, mfu 9.39%
+iter 596200: loss 0.0551, time 277.72ms, mfu 9.41%
+iter 596210: loss 0.0572, time 280.33ms, mfu 9.43%
+iter 596220: loss 0.0542, time 292.64ms, mfu 9.40%
+iter 596230: loss 0.0546, time 291.75ms, mfu 9.38%
+iter 596240: loss 0.0575, time 291.12ms, mfu 9.36%
+step 596250: train loss 0.0562, val loss 5.4376
+iter 596250: loss 0.0561, time 41889.72ms, mfu 8.43%
+iter 596260: loss 0.0568, time 287.90ms, mfu 8.52%
+iter 596270: loss 0.0537, time 292.04ms, mfu 8.58%
+iter 596280: loss 0.0519, time 280.86ms, mfu 8.68%
+iter 596290: loss 0.0553, time 298.52ms, mfu 8.71%
+iter 596300: loss 0.0562, time 281.53ms, mfu 8.79%
+iter 596310: loss 0.0562, time 272.96ms, mfu 8.89%
+iter 596320: loss 0.0554, time 281.22ms, mfu 8.95%
+iter 596330: loss 0.0587, time 285.22ms, mfu 9.00%
+iter 596340: loss 0.0570, time 281.97ms, mfu 9.05%
+iter 596350: loss 0.0577, time 282.75ms, mfu 9.09%
+iter 596360: loss 0.0569, time 290.21ms, mfu 9.10%
+iter 596370: loss 0.0580, time 286.73ms, mfu 9.13%
+iter 596380: loss 0.0564, time 291.26ms, mfu 9.13%
+iter 596390: loss 0.0546, time 282.54ms, mfu 9.17%
+iter 596400: loss 0.0559, time 291.64ms, mfu 9.17%
+iter 596410: loss 0.0554, time 291.90ms, mfu 9.17%
+iter 596420: loss 0.0559, time 281.02ms, mfu 9.21%
+iter 596430: loss 0.0562, time 282.61ms, mfu 9.23%
+iter 596440: loss 0.0552, time 283.10ms, mfu 9.25%
+iter 596450: loss 0.0578, time 291.08ms, mfu 9.25%
+iter 596460: loss 0.0563, time 291.91ms, mfu 9.24%
+iter 596470: loss 0.0555, time 291.25ms, mfu 9.24%
+iter 596480: loss 0.0550, time 280.64ms, mfu 9.27%
+iter 596490: loss 0.0557, time 286.68ms, mfu 9.27%
+step 596500: train loss 0.0562, val loss 5.4355
+iter 596500: loss 0.0553, time 41953.17ms, mfu 8.35%
+iter 596510: loss 0.0561, time 291.99ms, mfu 8.44%
+iter 596520: loss 0.0550, time 280.66ms, mfu 8.55%
+iter 596530: loss 0.0561, time 281.47ms, mfu 8.64%
+iter 596540: loss 0.0574, time 283.21ms, mfu 8.72%
+iter 596550: loss 0.0542, time 280.95ms, mfu 8.80%
+iter 596560: loss 0.0539, time 281.83ms, mfu 8.87%
+iter 596570: loss 0.0566, time 288.18ms, mfu 8.92%
+iter 596580: loss 0.0573, time 293.47ms, mfu 8.94%
+iter 596590: loss 0.0571, time 290.67ms, mfu 8.96%
+iter 596600: loss 0.0565, time 282.38ms, mfu 9.02%
+iter 596610: loss 0.0563, time 281.83ms, mfu 9.06%
+iter 596620: loss 0.0552, time 270.09ms, mfu 9.15%
+iter 596630: loss 0.0552, time 280.59ms, mfu 9.19%
+iter 596640: loss 0.0574, time 282.25ms, mfu 9.22%
+iter 596650: loss 0.0578, time 280.37ms, mfu 9.25%
+iter 596660: loss 0.0583, time 280.48ms, mfu 9.28%
+iter 596670: loss 0.0570, time 290.52ms, mfu 9.27%
+iter 596680: loss 0.0576, time 282.03ms, mfu 9.30%
+iter 596690: loss 0.0564, time 282.64ms, mfu 9.31%
+iter 596700: loss 0.0528, time 281.49ms, mfu 9.33%
+iter 596710: loss 0.0573, time 288.50ms, mfu 9.33%
+iter 596720: loss 0.0558, time 280.89ms, mfu 9.35%
+iter 596730: loss 0.0596, time 290.28ms, mfu 9.34%
+iter 596740: loss 0.0560, time 290.11ms, mfu 9.33%
+step 596750: train loss 0.0562, val loss 5.4691
+iter 596750: loss 0.0557, time 41825.74ms, mfu 8.40%
+iter 596760: loss 0.0551, time 291.41ms, mfu 8.48%
+iter 596770: loss 0.0557, time 292.73ms, mfu 8.55%
+iter 596780: loss 0.0556, time 284.08ms, mfu 8.63%
+iter 596790: loss 0.0545, time 280.96ms, mfu 8.72%
+iter 596800: loss 0.0576, time 289.14ms, mfu 8.78%
+iter 596810: loss 0.0569, time 291.21ms, mfu 8.82%
+iter 596820: loss 0.0552, time 280.88ms, mfu 8.89%
+iter 596830: loss 0.0546, time 290.32ms, mfu 8.92%
+iter 596840: loss 0.0561, time 286.49ms, mfu 8.97%
+iter 596850: loss 0.0567, time 280.95ms, mfu 9.02%
+iter 596860: loss 0.0574, time 290.55ms, mfu 9.04%
+iter 596870: loss 0.0568, time 284.01ms, mfu 9.08%
+iter 596880: loss 0.0555, time 292.13ms, mfu 9.09%
+iter 596890: loss 0.0548, time 281.77ms, mfu 9.13%
+iter 596900: loss 0.0571, time 295.02ms, mfu 9.13%
+iter 596910: loss 0.0548, time 292.38ms, mfu 9.13%
+iter 596920: loss 0.0541, time 281.29ms, mfu 9.17%
+iter 596930: loss 0.0552, time 290.72ms, mfu 9.17%
+iter 596940: loss 0.0552, time 281.32ms, mfu 9.21%
+iter 596950: loss 0.0551, time 291.43ms, mfu 9.20%
+iter 596960: loss 0.0559, time 281.87ms, mfu 9.23%
+iter 596970: loss 0.0572, time 280.19ms, mfu 9.27%
+iter 596980: loss 0.0557, time 292.17ms, mfu 9.26%
+iter 596990: loss 0.0565, time 279.66ms, mfu 9.29%
+step 597000: train loss 0.0560, val loss 5.5122
+iter 597000: loss 0.0552, time 41827.00ms, mfu 8.37%
+iter 597010: loss 0.0557, time 261.32ms, mfu 8.55%
+iter 597020: loss 0.0585, time 278.03ms, mfu 8.66%
+iter 597030: loss 0.0587, time 271.88ms, mfu 8.78%
+iter 597040: loss 0.0569, time 292.69ms, mfu 8.82%
+iter 597050: loss 0.0549, time 279.24ms, mfu 8.89%
+iter 597060: loss 0.0562, time 280.51ms, mfu 8.96%
+iter 597070: loss 0.0577, time 281.08ms, mfu 9.02%
+iter 597080: loss 0.0564, time 289.25ms, mfu 9.04%
+iter 597090: loss 0.0555, time 271.67ms, mfu 9.12%
+iter 597100: loss 0.0555, time 296.89ms, mfu 9.11%
+iter 597110: loss 0.0584, time 282.81ms, mfu 9.15%
+iter 597120: loss 0.0573, time 279.85ms, mfu 9.19%
+iter 597130: loss 0.0550, time 288.01ms, mfu 9.20%
+iter 597140: loss 0.0586, time 282.28ms, mfu 9.23%
+iter 597150: loss 0.0554, time 289.58ms, mfu 9.23%
+iter 597160: loss 0.0567, time 294.31ms, mfu 9.22%
+iter 597170: loss 0.0572, time 290.30ms, mfu 9.22%
+iter 597180: loss 0.0560, time 280.92ms, mfu 9.25%
+iter 597190: loss 0.0565, time 292.10ms, mfu 9.24%
+iter 597200: loss 0.0568, time 291.11ms, mfu 9.24%
+iter 597210: loss 0.0555, time 291.46ms, mfu 9.23%
+iter 597220: loss 0.0541, time 276.06ms, mfu 9.28%
+iter 597230: loss 0.0567, time 292.69ms, mfu 9.27%
+iter 597240: loss 0.0566, time 289.79ms, mfu 9.26%
+step 597250: train loss 0.0561, val loss 5.4285
+iter 597250: loss 0.0547, time 41845.67ms, mfu 8.34%
+iter 597260: loss 0.0573, time 282.64ms, mfu 8.46%
+iter 597270: loss 0.0552, time 291.80ms, mfu 8.53%
+iter 597280: loss 0.0571, time 280.07ms, mfu 8.63%
+iter 597290: loss 0.0554, time 293.22ms, mfu 8.68%
+iter 597300: loss 0.0548, time 282.40ms, mfu 8.76%
+iter 597310: loss 0.0580, time 293.99ms, mfu 8.80%
+iter 597320: loss 0.0559, time 291.44ms, mfu 8.84%
+iter 597330: loss 0.0569, time 274.19ms, mfu 8.93%
+iter 597340: loss 0.0553, time 290.92ms, mfu 8.96%
+iter 597350: loss 0.0539, time 261.96ms, mfu 9.08%
+iter 597360: loss 0.0553, time 287.67ms, mfu 9.11%
+iter 597370: loss 0.0542, time 271.69ms, mfu 9.18%
+iter 597380: loss 0.0546, time 291.92ms, mfu 9.18%
+iter 597390: loss 0.0556, time 279.48ms, mfu 9.22%
+iter 597400: loss 0.0571, time 288.52ms, mfu 9.23%
+iter 597410: loss 0.0578, time 283.13ms, mfu 9.25%
+iter 597420: loss 0.0518, time 291.49ms, mfu 9.24%
+iter 597430: loss 0.0563, time 281.04ms, mfu 9.27%
+iter 597440: loss 0.0562, time 290.78ms, mfu 9.26%
+iter 597450: loss 0.0544, time 280.29ms, mfu 9.29%
+iter 597460: loss 0.0571, time 281.10ms, mfu 9.32%
+iter 597470: loss 0.0582, time 285.97ms, mfu 9.32%
+iter 597480: loss 0.0566, time 290.42ms, mfu 9.31%
+iter 597490: loss 0.0554, time 279.10ms, mfu 9.34%
+step 597500: train loss 0.0563, val loss 5.4449
+iter 597500: loss 0.0560, time 41900.41ms, mfu 8.41%
+iter 597510: loss 0.0563, time 281.36ms, mfu 8.52%
+iter 597520: loss 0.0549, time 280.22ms, mfu 8.63%
+iter 597530: loss 0.0582, time 291.03ms, mfu 8.68%
+iter 597540: loss 0.0553, time 266.00ms, mfu 8.82%
+iter 597550: loss 0.0559, time 292.56ms, mfu 8.85%
+iter 597560: loss 0.0550, time 280.37ms, mfu 8.92%
+iter 597570: loss 0.0557, time 271.25ms, mfu 9.02%
+iter 597580: loss 0.0585, time 290.78ms, mfu 9.04%
+iter 597590: loss 0.0545, time 290.65ms, mfu 9.06%
+iter 597600: loss 0.0571, time 272.22ms, mfu 9.13%
+iter 597610: loss 0.0556, time 274.96ms, mfu 9.19%
+iter 597620: loss 0.0555, time 279.23ms, mfu 9.23%
+iter 597630: loss 0.0546, time 281.79ms, mfu 9.26%
+iter 597640: loss 0.0568, time 291.53ms, mfu 9.25%
+iter 597650: loss 0.0563, time 282.02ms, mfu 9.28%
+iter 597660: loss 0.0567, time 271.39ms, mfu 9.34%
+iter 597670: loss 0.0564, time 281.58ms, mfu 9.35%
+iter 597680: loss 0.0564, time 280.43ms, mfu 9.37%
+iter 597690: loss 0.0577, time 281.32ms, mfu 9.39%
+iter 597700: loss 0.0543, time 279.86ms, mfu 9.41%
+iter 597710: loss 0.0550, time 291.18ms, mfu 9.38%
+iter 597720: loss 0.0571, time 281.79ms, mfu 9.40%
+iter 597730: loss 0.0551, time 294.31ms, mfu 9.37%
+iter 597740: loss 0.0576, time 291.74ms, mfu 9.35%
+step 597750: train loss 0.0558, val loss 5.4232
+iter 597750: loss 0.0552, time 41995.28ms, mfu 8.42%
+iter 597760: loss 0.0538, time 282.95ms, mfu 8.52%
+iter 597770: loss 0.0552, time 281.81ms, mfu 8.62%
+iter 597780: loss 0.0563, time 281.50ms, mfu 8.71%
+iter 597790: loss 0.0555, time 281.49ms, mfu 8.79%
+iter 597800: loss 0.0559, time 290.83ms, mfu 8.83%
+iter 597810: loss 0.0573, time 290.66ms, mfu 8.87%
+iter 597820: loss 0.0566, time 291.45ms, mfu 8.90%
+iter 597830: loss 0.0559, time 280.36ms, mfu 8.97%
+iter 597840: loss 0.0547, time 289.40ms, mfu 9.00%
+iter 597850: loss 0.0580, time 290.54ms, mfu 9.02%
+iter 597860: loss 0.0589, time 282.92ms, mfu 9.06%
+iter 597870: loss 0.0546, time 281.18ms, mfu 9.11%
+iter 597880: loss 0.0553, time 281.78ms, mfu 9.15%
+iter 597890: loss 0.0584, time 288.69ms, mfu 9.16%
+iter 597900: loss 0.0564, time 281.47ms, mfu 9.20%
+iter 597910: loss 0.0566, time 279.99ms, mfu 9.23%
+iter 597920: loss 0.0566, time 280.90ms, mfu 9.26%
+iter 597930: loss 0.0550, time 282.38ms, mfu 9.28%
+iter 597940: loss 0.0547, time 280.61ms, mfu 9.31%
+iter 597950: loss 0.0546, time 282.07ms, mfu 9.33%
+iter 597960: loss 0.0551, time 270.85ms, mfu 9.38%
+iter 597970: loss 0.0558, time 282.41ms, mfu 9.39%
+iter 597980: loss 0.0554, time 281.39ms, mfu 9.41%
+iter 597990: loss 0.0536, time 294.32ms, mfu 9.38%
+step 598000: train loss 0.0559, val loss 5.4396
+iter 598000: loss 0.0551, time 41962.27ms, mfu 8.44%
+iter 598010: loss 0.0574, time 290.25ms, mfu 8.52%
+iter 598020: loss 0.0527, time 270.58ms, mfu 8.66%
+iter 598030: loss 0.0577, time 281.77ms, mfu 8.74%
+iter 598040: loss 0.0597, time 287.77ms, mfu 8.80%
+iter 598050: loss 0.0558, time 282.78ms, mfu 8.87%
+iter 598060: loss 0.0574, time 286.15ms, mfu 8.92%
+iter 598070: loss 0.0557, time 289.74ms, mfu 8.95%
+iter 598080: loss 0.0552, time 280.70ms, mfu 9.01%
+iter 598090: loss 0.0600, time 290.66ms, mfu 9.03%
+iter 598100: loss 0.0581, time 281.39ms, mfu 9.08%
+iter 598110: loss 0.0543, time 284.51ms, mfu 9.11%
+iter 598120: loss 0.0568, time 290.49ms, mfu 9.12%
+iter 598130: loss 0.0571, time 282.27ms, mfu 9.16%
+iter 598140: loss 0.0570, time 282.74ms, mfu 9.19%
+iter 598150: loss 0.0562, time 277.80ms, mfu 9.23%
+iter 598160: loss 0.0565, time 290.75ms, mfu 9.23%
+iter 598170: loss 0.0582, time 292.45ms, mfu 9.22%
+iter 598180: loss 0.0541, time 290.54ms, mfu 9.22%
+iter 598190: loss 0.0573, time 261.77ms, mfu 9.32%
+iter 598200: loss 0.0558, time 291.04ms, mfu 9.31%
+iter 598210: loss 0.0524, time 290.25ms, mfu 9.30%
+iter 598220: loss 0.0562, time 281.34ms, mfu 9.32%
+iter 598230: loss 0.0542, time 280.28ms, mfu 9.35%
+iter 598240: loss 0.0547, time 281.88ms, mfu 9.36%
+step 598250: train loss 0.0558, val loss 5.4652
+iter 598250: loss 0.0561, time 41837.07ms, mfu 8.43%
+iter 598260: loss 0.0586, time 296.52ms, mfu 8.49%
+iter 598270: loss 0.0545, time 291.52ms, mfu 8.56%
+iter 598280: loss 0.0536, time 292.83ms, mfu 8.62%
+iter 598290: loss 0.0575, time 281.17ms, mfu 8.71%
+iter 598300: loss 0.0573, time 290.64ms, mfu 8.76%
+iter 598310: loss 0.0544, time 290.23ms, mfu 8.81%
+iter 598320: loss 0.0580, time 280.48ms, mfu 8.88%
+iter 598330: loss 0.0572, time 283.08ms, mfu 8.94%
+iter 598340: loss 0.0547, time 290.13ms, mfu 8.97%
+iter 598350: loss 0.0552, time 280.78ms, mfu 9.02%
+iter 598360: loss 0.0565, time 296.39ms, mfu 9.03%
+iter 598370: loss 0.0545, time 281.24ms, mfu 9.08%
+iter 598380: loss 0.0562, time 288.18ms, mfu 9.10%
+iter 598390: loss 0.0542, time 275.94ms, mfu 9.16%
+iter 598400: loss 0.0571, time 280.53ms, mfu 9.20%
+iter 598410: loss 0.0535, time 293.33ms, mfu 9.19%
+iter 598420: loss 0.0545, time 291.15ms, mfu 9.19%
+iter 598430: loss 0.0569, time 282.04ms, mfu 9.22%
+iter 598440: loss 0.0574, time 271.08ms, mfu 9.29%
+iter 598450: loss 0.0550, time 284.96ms, mfu 9.30%
+iter 598460: loss 0.0555, time 281.92ms, mfu 9.32%
+iter 598470: loss 0.0574, time 279.48ms, mfu 9.34%
+iter 598480: loss 0.0580, time 278.93ms, mfu 9.37%
+iter 598490: loss 0.0571, time 280.98ms, mfu 9.39%
+step 598500: train loss 0.0562, val loss 5.4144
+iter 598500: loss 0.0552, time 41909.24ms, mfu 8.45%
+iter 598510: loss 0.0584, time 290.66ms, mfu 8.53%
+iter 598520: loss 0.0576, time 281.23ms, mfu 8.63%
+iter 598530: loss 0.0557, time 280.67ms, mfu 8.72%
+iter 598540: loss 0.0521, time 291.99ms, mfu 8.76%
+iter 598550: loss 0.0558, time 279.93ms, mfu 8.84%
+iter 598560: loss 0.0572, time 290.46ms, mfu 8.88%
+iter 598570: loss 0.0552, time 292.18ms, mfu 8.91%
+iter 598580: loss 0.0537, time 286.43ms, mfu 8.95%
+iter 598590: loss 0.0584, time 283.84ms, mfu 9.00%
+iter 598600: loss 0.0592, time 289.42ms, mfu 9.03%
+iter 598610: loss 0.0566, time 285.59ms, mfu 9.06%
+iter 598620: loss 0.0541, time 296.37ms, mfu 9.06%
+iter 598630: loss 0.0556, time 270.33ms, mfu 9.14%
+iter 598640: loss 0.0551, time 293.55ms, mfu 9.14%
+iter 598650: loss 0.0563, time 292.09ms, mfu 9.14%
+iter 598660: loss 0.0592, time 281.71ms, mfu 9.18%
+iter 598670: loss 0.0538, time 291.52ms, mfu 9.18%
+iter 598680: loss 0.0545, time 290.22ms, mfu 9.19%
+iter 598690: loss 0.0552, time 282.44ms, mfu 9.21%
+iter 598700: loss 0.0566, time 281.98ms, mfu 9.24%
+iter 598710: loss 0.0572, time 290.35ms, mfu 9.24%
+iter 598720: loss 0.0562, time 291.90ms, mfu 9.23%
+iter 598730: loss 0.0550, time 281.15ms, mfu 9.26%
+iter 598740: loss 0.0557, time 290.80ms, mfu 9.26%
+step 598750: train loss 0.0565, val loss 5.4714
+iter 598750: loss 0.0570, time 42260.75ms, mfu 8.34%
+iter 598760: loss 0.0561, time 296.55ms, mfu 8.41%
+iter 598770: loss 0.0542, time 293.68ms, mfu 8.48%
+iter 598780: loss 0.0563, time 288.85ms, mfu 8.56%
+iter 598790: loss 0.0543, time 292.43ms, mfu 8.62%
+iter 598800: loss 0.0559, time 281.42ms, mfu 8.71%
+iter 598810: loss 0.0561, time 290.37ms, mfu 8.76%
+iter 598820: loss 0.0553, time 295.36ms, mfu 8.79%
+iter 598830: loss 0.0562, time 293.14ms, mfu 8.82%
+iter 598840: loss 0.0541, time 283.47ms, mfu 8.89%
+iter 598850: loss 0.0540, time 293.02ms, mfu 8.91%
+iter 598860: loss 0.0584, time 262.47ms, mfu 9.04%
+iter 598870: loss 0.0588, time 291.08ms, mfu 9.06%
+iter 598880: loss 0.0562, time 270.60ms, mfu 9.14%
+iter 598890: loss 0.0559, time 293.57ms, mfu 9.14%
+iter 598900: loss 0.0552, time 281.99ms, mfu 9.17%
+iter 598910: loss 0.0548, time 287.45ms, mfu 9.19%
+iter 598920: loss 0.0550, time 294.30ms, mfu 9.18%
+iter 598930: loss 0.0578, time 289.67ms, mfu 9.19%
+iter 598940: loss 0.0550, time 291.57ms, mfu 9.19%
+iter 598950: loss 0.0553, time 270.91ms, mfu 9.26%
+iter 598960: loss 0.0606, time 287.65ms, mfu 9.26%
+iter 598970: loss 0.0558, time 280.31ms, mfu 9.29%
+iter 598980: loss 0.0585, time 295.52ms, mfu 9.27%
+iter 598990: loss 0.0596, time 282.78ms, mfu 9.29%
+step 599000: train loss 0.0562, val loss 5.4162
+iter 599000: loss 0.0552, time 42832.22ms, mfu 8.36%
+iter 599010: loss 0.0538, time 282.29ms, mfu 8.48%
+iter 599020: loss 0.0568, time 290.53ms, mfu 8.55%
+iter 599030: loss 0.0546, time 291.75ms, mfu 8.61%
+iter 599040: loss 0.0583, time 291.53ms, mfu 8.67%
+iter 599050: loss 0.0589, time 290.82ms, mfu 8.72%
+iter 599060: loss 0.0561, time 293.64ms, mfu 8.76%
+iter 599070: loss 0.0565, time 281.78ms, mfu 8.84%
+iter 599080: loss 0.0556, time 283.01ms, mfu 8.90%
+iter 599090: loss 0.0550, time 283.40ms, mfu 8.95%
+iter 599100: loss 0.0557, time 292.10ms, mfu 8.98%
+iter 599110: loss 0.0550, time 278.40ms, mfu 9.04%
+iter 599120: loss 0.0566, time 305.63ms, mfu 9.01%
+iter 599130: loss 0.0541, time 282.68ms, mfu 9.06%
+iter 599140: loss 0.0552, time 293.58ms, mfu 9.06%
+iter 599150: loss 0.0579, time 292.57ms, mfu 9.07%
+iter 599160: loss 0.0543, time 291.90ms, mfu 9.08%
+iter 599170: loss 0.0563, time 280.12ms, mfu 9.13%
+iter 599180: loss 0.0555, time 293.32ms, mfu 9.13%
+iter 599190: loss 0.0586, time 281.44ms, mfu 9.17%
+iter 599200: loss 0.0562, time 298.76ms, mfu 9.15%
+iter 599210: loss 0.0557, time 291.74ms, mfu 9.15%
+iter 599220: loss 0.0568, time 283.47ms, mfu 9.18%
+iter 599230: loss 0.0555, time 293.87ms, mfu 9.17%
+iter 599240: loss 0.0572, time 279.85ms, mfu 9.21%
+step 599250: train loss 0.0561, val loss 5.4243
+iter 599250: loss 0.0569, time 42970.54ms, mfu 8.30%
+iter 599260: loss 0.0538, time 291.98ms, mfu 8.39%
+iter 599270: loss 0.0530, time 291.21ms, mfu 8.47%
+iter 599280: loss 0.0564, time 287.67ms, mfu 8.55%
+iter 599290: loss 0.0546, time 280.88ms, mfu 8.65%
+iter 599300: loss 0.0544, time 291.72ms, mfu 8.70%
+iter 599310: loss 0.0559, time 292.00ms, mfu 8.75%
+iter 599320: loss 0.0544, time 291.04ms, mfu 8.79%
+iter 599330: loss 0.0548, time 298.06ms, mfu 8.81%
+iter 599340: loss 0.0578, time 282.59ms, mfu 8.88%
+iter 599350: loss 0.0555, time 291.36ms, mfu 8.91%
+iter 599360: loss 0.0580, time 294.83ms, mfu 8.93%
+iter 599370: loss 0.0557, time 278.11ms, mfu 9.00%
+iter 599380: loss 0.0527, time 282.94ms, mfu 9.04%
+iter 599390: loss 0.0546, time 290.02ms, mfu 9.06%
+iter 599400: loss 0.0562, time 284.34ms, mfu 9.10%
+iter 599410: loss 0.0541, time 281.20ms, mfu 9.14%
+iter 599420: loss 0.0545, time 270.91ms, mfu 9.22%
+iter 599430: loss 0.0535, time 292.38ms, mfu 9.21%
+iter 599440: loss 0.0579, time 294.69ms, mfu 9.20%
+iter 599450: loss 0.0570, time 296.65ms, mfu 9.18%
+iter 599460: loss 0.0551, time 291.22ms, mfu 9.18%
+iter 599470: loss 0.0548, time 294.09ms, mfu 9.17%
+iter 599480: loss 0.0580, time 292.32ms, mfu 9.17%
+iter 599490: loss 0.0533, time 292.62ms, mfu 9.17%
+step 599500: train loss 0.0560, val loss 5.4919
+iter 599500: loss 0.0546, time 43133.19ms, mfu 8.26%
+iter 599510: loss 0.0573, time 279.20ms, mfu 8.39%
+iter 599520: loss 0.0568, time 282.92ms, mfu 8.50%
+iter 599530: loss 0.0542, time 287.00ms, mfu 8.58%
+iter 599540: loss 0.0548, time 290.68ms, mfu 8.65%
+iter 599550: loss 0.0572, time 291.43ms, mfu 8.70%
+iter 599560: loss 0.0602, time 292.27ms, mfu 8.75%
+iter 599570: loss 0.0554, time 291.54ms, mfu 8.79%
+iter 599580: loss 0.0549, time 291.88ms, mfu 8.83%
+iter 599590: loss 0.0565, time 291.61ms, mfu 8.86%
+iter 599600: loss 0.0566, time 292.33ms, mfu 8.89%
+iter 599610: loss 0.0572, time 292.01ms, mfu 8.92%
+iter 599620: loss 0.0564, time 261.85ms, mfu 9.05%
+iter 599630: loss 0.0550, time 282.54ms, mfu 9.09%
+iter 599640: loss 0.0566, time 292.45ms, mfu 9.10%
+iter 599650: loss 0.0584, time 291.51ms, mfu 9.11%
+iter 599660: loss 0.0560, time 280.09ms, mfu 9.15%
+iter 599670: loss 0.0582, time 290.88ms, mfu 9.16%
+iter 599680: loss 0.0564, time 291.09ms, mfu 9.16%
+iter 599690: loss 0.0531, time 291.68ms, mfu 9.16%
+iter 599700: loss 0.0551, time 281.29ms, mfu 9.20%
+iter 599710: loss 0.0541, time 283.58ms, mfu 9.22%
+iter 599720: loss 0.0570, time 291.06ms, mfu 9.22%
+iter 599730: loss 0.0553, time 301.05ms, mfu 9.19%
+iter 599740: loss 0.0561, time 294.20ms, mfu 9.18%
+step 599750: train loss 0.0563, val loss 5.4264
+iter 599750: loss 0.0543, time 42994.15ms, mfu 8.27%
+iter 599760: loss 0.0572, time 292.76ms, mfu 8.36%
+iter 599770: loss 0.0566, time 292.07ms, mfu 8.44%
+iter 599780: loss 0.0576, time 290.17ms, mfu 8.52%
+iter 599790: loss 0.0549, time 291.87ms, mfu 8.58%
+iter 599800: loss 0.0557, time 293.62ms, mfu 8.64%
+iter 599810: loss 0.0554, time 287.60ms, mfu 8.70%
+iter 599820: loss 0.0561, time 280.23ms, mfu 8.79%
+iter 599830: loss 0.0556, time 292.57ms, mfu 8.83%
+iter 599840: loss 0.0575, time 291.59ms, mfu 8.86%
+iter 599850: loss 0.0565, time 280.62ms, mfu 8.93%
+iter 599860: loss 0.0570, time 289.55ms, mfu 8.96%
+iter 599870: loss 0.0582, time 291.12ms, mfu 8.98%
+iter 599880: loss 0.0562, time 292.22ms, mfu 9.00%
+iter 599890: loss 0.0571, time 290.93ms, mfu 9.02%
+iter 599900: loss 0.0566, time 291.68ms, mfu 9.04%
+iter 599910: loss 0.0576, time 282.11ms, mfu 9.08%
+iter 599920: loss 0.0570, time 271.48ms, mfu 9.16%
+iter 599930: loss 0.0572, time 301.91ms, mfu 9.13%
+iter 599940: loss 0.0569, time 290.34ms, mfu 9.14%
+iter 599950: loss 0.0570, time 300.70ms, mfu 9.12%
+iter 599960: loss 0.0568, time 283.08ms, mfu 9.15%
+iter 599970: loss 0.0570, time 291.40ms, mfu 9.16%
+iter 599980: loss 0.0566, time 287.92ms, mfu 9.17%
+iter 599990: loss 0.0589, time 290.64ms, mfu 9.17%
+step 600000: train loss 0.0559, val loss 5.4563
+iter 600000: loss 0.0560, time 43211.33ms, mfu 8.26%
+
+Provost:
+A man of the gold her of here and which old offess;
+Thou art she's own of a back imms, which is touches
+Your king Aufidius; but their with is full.
+
+AUTOLYCUS:
+O, no, fray wonder back you hangs.
+
+ROMEO:
+This and the got to same of the backs
+To the in the is rots many of him suither,
+A all this is man may cheeks the days:
+Some of the lard-bestrate had bid of God,
+Tell thou the mother, to thy the from ways;
+And I base lighent thy be disse; sweet shed upon'd by my desire
+To answer prove a
+---------------
+
+LADY ANNE:
+What I'll be so, I can made will grievens! For your is
+Thanks:
+I am dess my so sun the battle him very unge; but hath e made a not of our so.
+
+QUEEN ELIZABETH:
+Were is said so so defore deed came them as out
+hundren this fear the come, we are arise,
+And some from the and flame bear and help me.
+
+LUCIO:
+Happy, still this char man: which a sorrow, sir.
+
+TYBALT:
+No farewell.
+
+SICINIUS:
+I'll be dreather, well the said is at out:
+Your a mad, but hastial at us? They self,
+Say to Norfolk an
+---------------
+
+Tut, if that the not he bush flight slaught
+To precive the bettend with has would not hast,
+With may heart pass hereof. The was well.
+
+AUTOLYCUS:
+No, sir, and the delive thy love soldiers.
+
+CATESBY:
+Yea, I haste our proof that such a kind o' thee,
+To be not so the with moved wound from the banish'd way, tyrant, and, nor he gailty
+At waywing to shed the kingle and death;
+With e air she three is and think a the burd.
+
+KING RICHARD III:
+Be it is good not by heart, the lark.
+
+DUKE VINCENTIO:
+Better
+---------------
+
+And save the be put the be hre wars my bond,
+Die with mide my our brother, no Claus Mowbray.
+
+LADY CAPULET:
+So money, good a son! lay that I live,
+The break'd the hour casted, ere I am ine out
+A lever-phorofit.
+
+KING RICHARD III:
+May life sunation, for an and saysell.
+
+DUCHESS OF YORK:
+And gener: I had say.
+
+KING RICHARD III:
+Well, no.
+
+KING RICHARD III:
+We, pardon'd use are tomatination.
+
+YORK:
+You may lords, and thy he wolld be myself,
+Which to add with sweet he he taled unders,
+Which speak of
+---------------
+
+
+MONTAGUE:
+It be a make, and witch death, the blest her swallong?
+
+CORIOLANUS:
+He has hangureed on, I have head: go to shall master's
+Thore is the kingly down thy canot to prove.
+
+ISABELLA:
+No, good fair a sun at them the grief:
+Bid he now the clouds will spectring in
+And you inter see grace to the be so breath, night
+WARWICK:
+Arp furthrink from suit diss, for tide never
+And mistrespare change you or in and ay:
+Which scall to laste unapp'd the king advity.
+
+SOMERSET:
+Thou shall will day as that
+---------------
+
+Well the is come to the cale as and dine,
+Shave me the king in all a will as a power. See,
+To mock my poor how them abanish'd on own,
+And I will do out some not good the prom the owld,
+That need my may lord in the camore to pay
+Way-shed Irother, I structled shadows,
+Set me for a was are enmand's thep-heart, hath worth,--
+Before a cheeks.
+
+ATINGA:
+And what shall not my breather that enger,
+Which not the days idle part hangmenting.
+Upon, with a talk on a mine of my fair call,
+An plauon! come, poor
+---------------
+
+Did not my father, and do his for my wond,
+Shall I shall no reperson; here march,
+That love it be with aimmean, or the with rebaut
+To make this dung by at the senatices?'
+Six eath he love me to say or and with the:
+We'll we canst our days heir the did been
+As if thou counting soory fleext the last. He have here infection it
+enting in and man!
+
+KING EDWARD IV:
+And thou, my lord, will help thy can, can
+The love you been be this from heart
+Tath this carrination crown, in more us of no stand
+The wor
+---------------
+
+LEONTES:
+The get as he urge the it I have consul, as
+Have I see a may come to do love it convey
+To queer is upon her best of my the world
+With no mother parteous and to known sunt,
+As he was on the somethink
+With thou love me have an disme mother?
+
+LADY CAPULET:
+Speak them and by cannot. O Barnardine,
+I should strate too tears receition
+Ather crown:
+Which common and runk with thou sheen way.
+
+Griman:
+What, we we not crutch he worse little of his a from atth in the declor of
+the words both a days
+---------------
+
+
+TYBALT:
+There is thy summent! What all set England's from here,
+Marcius silk a givilers the ways, and so more
+To be rever atter upon her wish on the trial,--part,
+Too make of horsh son our so prove in;
+And appents we shame or poweright ortrors,
+And more to entread the question shall
+Bundy and them not the earth, save death,
+Which on death an come in us, son, canstand some inted.
+
+Nurse:
+Look, the king from heave the is against
+You are unfull to a come but such as true;
+You'll and the some to my
+---------------
+
+
+MERCUTIO:
+Come, sir, Edward! wilt thy charge's carnother's croom
+With a paint the been the god ask and and it,
+As there armshese of a sound her by their wish the out he wast
+amcontry 'Woesd and king stat my liege,
+My gracioust of againstrength forforce part:
+And gene is and crue of great pleasured thy point.
+
+BUCKINGHAM:
+But hath se you the very still in freezen,
+You slittle came that of such and this subsist!
+
+BRUTUS:
+That for I had she may camate?
+
+Apposite the stinual to some to have day:
+Th
