@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import List
-from character_delimited_attention_mask  import CharacterDelimitedAttentionMask
+from dynamic_window_attention_mask import DynamicWindowAttentionMask
 
-class CharacterDelimitedAttention(nn.Module):
+class DynamicWindowAttention(nn.Module):
     def __init__(self, embed_dim: int, num_heads: int, delimiter_chars: List[str], normalize_v: bool = True):
         super().__init__()
         self.embed_dim = embed_dim
@@ -14,7 +14,7 @@ class CharacterDelimitedAttention(nn.Module):
 
         self.qkv_proj = nn.Linear(embed_dim, 3 * embed_dim)
         
-        self.attention_mask = CharacterDelimitedAttentionMask(delimiter_chars)
+        self.attention_mask = DynamicWindowAttentionMask(delimiter_chars)
         self.normalize_v = normalize_v
 
     def forward(self, x: torch.Tensor, char_ids: torch.Tensor) -> torch.Tensor:
