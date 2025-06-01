@@ -1,0 +1,13 @@
+# Python dependencies for the ai-llm project
+# Libraries required for training, testing and data preparation
+
+numpy
+requests
+tqdm
+datasets
+matplotlib
+wandb
+transformers
+torch
+tiktoken
+local-attention
