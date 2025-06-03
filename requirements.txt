@@ -4,10 +4,6 @@
 numpy
 requests
 tqdm
-datasets
-matplotlib
-wandb
 transformers
 torch
 tiktoken
-local-attention
