@@ -63,5 +63,32 @@ class TestGenesisGPTTrainable(unittest.TestCase):
         self.assertFalse(torch.isnan(loss_after))
 
 
+class TestGenesisGPTTrainingLoop(unittest.TestCase):
+    def test_loss_decreases(self):
+        torch.manual_seed(0)
+        cfg = GPTConfig(n_layer=1, n_head=2, n_embd=16, block_size=4, vocab_size=20)
+        model = GPT(cfg)
+        optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+
+        idx = torch.randint(0, cfg.vocab_size, (4, cfg.block_size))
+        targets = idx.clone()
+
+        with torch.no_grad():
+            _, initial_loss = model(idx, targets)
+        self.assertFalse(torch.isnan(initial_loss))
+
+        for _ in range(50):
+            optimizer.zero_grad()
+            _, loss = model(idx, targets)
+            loss.backward()
+            optimizer.step()
+
+        with torch.no_grad():
+            _, final_loss = model(idx, targets)
+
+        self.assertFalse(torch.isnan(final_loss))
+        self.assertLess(final_loss, initial_loss)
+
+
 if __name__ == "__main__":
     unittest.main()
